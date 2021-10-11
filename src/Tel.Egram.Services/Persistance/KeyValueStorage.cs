@@ -20,7 +20,7 @@ namespace Tel.Egram.Services.Persistance
         {
             var entity = _db.Values.FirstOrDefault(v => v.Key == key);
             var obj = Serialize(value);
-            
+
             if (entity != null)
             {
                 entity.Value = obj;
@@ -34,7 +34,7 @@ namespace Tel.Egram.Services.Persistance
                     Value = obj
                 });
             }
-            
+
             _db.SaveChanges();
         }
 
@@ -42,12 +42,7 @@ namespace Tel.Egram.Services.Persistance
         {
             var entity = _db.Values.AsNoTracking().FirstOrDefault(v => v.Key == key);
 
-            if (entity == null)
-            {
-                throw new NullReferenceException($"Value for key '{key}' is not set");
-            }
-            
-            return Deserialize<T>(entity.Value);
+            return entity == null ? throw new NullReferenceException($"Value for key '{key}' is not set") : Deserialize<T>(entity.Value);
         }
 
         public IList<KeyValuePair<string, T>> GetAll<T>()
@@ -63,7 +58,7 @@ namespace Tel.Egram.Services.Persistance
 
             if (entity == null)
             {
-                value = default(T);
+                value = default;
                 return false;
             }
 
@@ -74,7 +69,7 @@ namespace Tel.Egram.Services.Persistance
         public void Delete(string key)
         {
             var entity = _db.Values.FirstOrDefault(v => v.Key == key);
-            
+
             if (entity != null)
             {
                 _db.Values.Remove(entity);
@@ -82,10 +77,16 @@ namespace Tel.Egram.Services.Persistance
             }
         }
 
-        private string Serialize<T>(T obj) => JsonConvert.SerializeObject(obj);
-        
-        private T Deserialize<T>(string v) => v != null
-            ? JsonConvert.DeserializeObject<T>(v)
-            : default(T);
+        private string Serialize<T>(T obj)
+        {
+            return JsonConvert.SerializeObject(obj);
+        }
+
+        private T Deserialize<T>(string v)
+        {
+            return v != null
+                ? JsonConvert.DeserializeObject<T>(v)
+                : default;
+        }
     }
 }

@@ -15,7 +15,7 @@ namespace Tel.Egram.Services.Messaging.Users
         {
             _agent = agent;
         }
-        
+
         public IObservable<User> GetMe()
         {
             return _agent.Execute(new TdApi.GetMe())

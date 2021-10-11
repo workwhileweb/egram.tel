@@ -15,7 +15,7 @@ using Tel.Egram.Services.Utils.Reactive;
 namespace Tel.Egram.Views.Messenger.Homepage
 {
     public class HomepageControl : BaseControl<HomepageModel>
-    {   
+    {
         public HomepageControl()
         {
             AvaloniaXamlLoader.Load(this);

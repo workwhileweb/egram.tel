@@ -15,7 +15,7 @@ namespace Tel.Egram.Services.Persistance
             _assembly = assembly;
             _prefix = assembly.GetName().Name + ".Resources.";
         }
-        
+
         public IList<PhoneCode> GetPhoneCodes()
         {
             using (var stream = _assembly.GetManifestResourceStream(_prefix + "PhoneCodes.txt"))
@@ -29,7 +29,7 @@ namespace Tel.Egram.Services.Persistance
                     {
                         var code = new PhoneCode();
                         var parts = line.Split(';');
-                        
+
                         if (parts.Length > 0)
                         {
                             code.Code = parts[0];
@@ -49,7 +49,7 @@ namespace Tel.Egram.Services.Persistance
                         {
                             code.Mask = parts[3];
                         }
-                        
+
                         codes.Add(code);
                     }
                 }

@@ -8,7 +8,7 @@ namespace Tel.Egram.Model.Popups
     public class PopupModel : ISupportsActivation
     {
         public PopupContext[] Contexts { get; set; }
-        
+
         public PopupContext Context { get; set; }
 
         public bool IsVisible { get; set; } = true;
@@ -17,7 +17,7 @@ namespace Tel.Egram.Model.Popups
         {
             Contexts = new[] { context };
             Context = context;
-            
+
             this.WhenActivated(disposables =>
             {
                 this.BindPopup()

@@ -21,7 +21,7 @@ namespace Tel.Egram.Services.Messaging.Messages
         public IObservable<Message> LoadMessage(long chatId, long messageId)
         {
             var scope = new MessageLoaderScope(_agent);
-            
+
             return scope.GetMessage(chatId, messageId)
                 .SelectSeq(m => MapToMessage(scope, m))
                 .Finally(() =>
@@ -35,7 +35,7 @@ namespace Tel.Egram.Services.Messaging.Messages
             AggregateLoadingState state)
         {
             var scope = new MessageLoaderScope(_agent);
-            
+
             return LoadAggregateMessages(feed, state)
                 .SelectSeq(m => MapToMessage(scope, m))
                 .Finally(() =>
@@ -50,7 +50,7 @@ namespace Tel.Egram.Services.Messaging.Messages
             int limit)
         {
             var scope = new MessageLoaderScope(_agent);
-            
+
             return GetMessages(chat.ChatData, fromMessageId, limit, -(limit - 1) / 2)
                 .SelectSeq(m => MapToMessage(scope, m))
                 .Finally(() =>
@@ -65,7 +65,7 @@ namespace Tel.Egram.Services.Messaging.Messages
             int limit)
         {
             var scope = new MessageLoaderScope(_agent);
-            
+
             return GetMessages(chat.ChatData, fromMessageId, limit, 0)
                 .SelectSeq(m => MapToMessage(scope, m))
                 .Finally(() =>
@@ -80,7 +80,7 @@ namespace Tel.Egram.Services.Messaging.Messages
             int limit)
         {
             var scope = new MessageLoaderScope(_agent);
-            
+
             return GetMessages(chat.ChatData, fromMessageId, limit, -(limit - 1))
                 .Where(m => m.Id != fromMessageId)
                 .SelectSeq(m => MapToMessage(scope, m))
@@ -93,7 +93,7 @@ namespace Tel.Egram.Services.Messaging.Messages
         public IObservable<Message> LoadPinnedMessage(Chat chat)
         {
             var scope = new MessageLoaderScope(_agent);
-            
+
             return GetPinnedMessage(chat.ChatData)
                 .Where(m => m != null)
                 .SelectSeq(m => MapToMessage(scope, m))
@@ -109,9 +109,9 @@ namespace Tel.Egram.Services.Messaging.Messages
             bool fetchReply = true)
         {
             return Observable.Return(new Message
-                {
-                    MessageData = msg
-                })
+            {
+                MessageData = msg
+            })
                 .SelectSeq(message =>
                 {
                     // get chat data
@@ -125,33 +125,27 @@ namespace Tel.Egram.Services.Messaging.Messages
                 .SelectSeq(message =>
                 {
                     // get user data
-                    if (message.MessageData.SenderUserId != 0)
-                    {
-                        return scope.GetUser(message.MessageData.SenderUserId)
+                    return message.MessageData.SenderUserId != 0
+                        ? scope.GetUser(message.MessageData.SenderUserId)
                             .Select(user =>
                             {
                                 message.UserData = user;
                                 return message;
-                            });
-                    }
-
-                    return Observable.Return(message);
+                            })
+                        : Observable.Return(message);
                 })
                 .SelectSeq(message =>
                 {
                     // get reply data
-                    if (fetchReply && message.MessageData.ReplyToMessageId != 0)
-                    {
-                        return scope.GetMessage(message.MessageData.ChatId, message.MessageData.ReplyToMessageId)
+                    return fetchReply && message.MessageData.ReplyToMessageId != 0
+                        ? scope.GetMessage(message.MessageData.ChatId, message.MessageData.ReplyToMessageId)
                             .SelectSeq(m => MapToMessage(scope, m, false))
                             .Select(reply =>
                             {
                                 message.ReplyMessage = reply;
                                 return message;
-                            });
-                    }
-                    
-                    return Observable.Return(message);
+                            })
+                        : Observable.Return(message);
                 });
         }
 
@@ -160,19 +154,19 @@ namespace Tel.Egram.Services.Messaging.Messages
             AggregateLoadingState state)
         {
             var actualLimit = _limit;
-            
+
             var list = aggregate.Chats.Select(f =>
             {
                 var stackedCount = state.CountStackedMessages(f.ChatData.Id);
-                
+
                 return Enumerable.Range(0, stackedCount)
                     .Select(_ => state.PopMessageFromStack(f.ChatData.Id)) // get stacked messages for this chat
                     .ToObservable()
                     .Concat(stackedCount < _limit
                         ? LoadChannelMessages(f, new ChatLoadingState // load messages from the server
-                            {
-                                LastMessageId = state.GetLastMessageId(f.ChatData.Id)
-                            }, _limit, 0)
+                        {
+                            LastMessageId = state.GetLastMessageId(f.ChatData.Id)
+                        }, _limit, 0)
                         : Observable.Empty<TdApi.Message>())
                     .CollectToList()
                     .Do(l =>
@@ -187,7 +181,7 @@ namespace Tel.Egram.Services.Messaging.Messages
                     })
                     .SelectMany(messages => messages);
             });
-            
+
             return list.Merge()
                 .CollectToList()
                 .SelectMany(l =>
@@ -206,7 +200,7 @@ namespace Tel.Egram.Services.Messaging.Messages
                     {
                         state.SetLastMessageId(message.ChatId, message.Id);
                     }
-                    
+
                     // put into stack
                     foreach (var message in toBeStacked.Reverse())
                     {
@@ -239,15 +233,15 @@ namespace Tel.Egram.Services.Messaging.Messages
             long fromMessageId,
             int limit,
             int offset)
-        {   
+        {
             return _agent.Execute(new TdApi.GetChatHistory
-                {
-                    ChatId = chat.Id,
-                    FromMessageId = fromMessageId,
-                    Limit = limit,
-                    Offset = offset,
-                    OnlyLocal = false
-                })
+            {
+                ChatId = chat.Id,
+                FromMessageId = fromMessageId,
+                Limit = limit,
+                Offset = offset,
+                OnlyLocal = false
+            })
                 .SelectMany(history => history.Messages_);
         }
 

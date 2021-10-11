@@ -17,18 +17,17 @@ namespace Tel.Egram.Model.Application
                 model,
                 Locator.Current.GetService<IPopupController>());
         }
-        
+
         public static IDisposable BindPopup(
             this MainWindowModel model,
             IPopupController popupController)
         {
             model.PopupModel = PopupModel.Hidden();
-            
+
             var trigger = (popupController as PopupController)?.Trigger;
 
-            if (trigger != null)
-            {
-                return trigger
+            return trigger != null
+                ? trigger
                     .SubscribeOn(RxApp.TaskpoolScheduler)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Accept(context =>
@@ -36,10 +35,8 @@ namespace Tel.Egram.Model.Application
                         model.PopupModel = context == null
                             ? PopupModel.Hidden()
                             : new PopupModel(context);
-                    });
-            }
-            
-            return Disposable.Empty;
+                    })
+                : Disposable.Empty;
         }
     }
 }

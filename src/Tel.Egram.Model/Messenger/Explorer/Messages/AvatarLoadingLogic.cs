@@ -17,7 +17,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                 model,
                 Locator.Current.GetService<IAvatarLoader>());
         }
-        
+
         public static IDisposable BindAvatarLoading(
             this MessageModel model,
             IAvatarLoader avatarLoader)
@@ -37,7 +37,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                         });
                 }
             }
-            
+
             return Disposable.Empty;
         }
 
@@ -48,14 +48,9 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                 return avatarLoader.GetAvatar(entry.Message.UserData, AvatarSize.Regular);
             }
 
-            if (entry.Message?.ChatData != null)
-            {
-                return avatarLoader.GetAvatar(entry.Message.ChatData, AvatarSize.Regular);
-            }
-            
-            return null;
+            return entry.Message?.ChatData != null ? avatarLoader.GetAvatar(entry.Message.ChatData, AvatarSize.Regular) : null;
         }
-        
+
         private static IObservable<Avatar> LoadAvatar(IAvatarLoader avatarLoader, MessageModel entry)
         {
             if (entry.Message?.UserData != null)
@@ -63,12 +58,9 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                 return avatarLoader.LoadAvatar(entry.Message.UserData, AvatarSize.Regular);
             }
 
-            if (entry.Message?.ChatData != null)
-            {
-                return avatarLoader.LoadAvatar(entry.Message.ChatData, AvatarSize.Regular);
-            }
-            
-            return Observable.Empty<Avatar>();
+            return entry.Message?.ChatData != null
+                ? avatarLoader.LoadAvatar(entry.Message.ChatData, AvatarSize.Regular)
+                : Observable.Empty<Avatar>();
         }
     }
 }

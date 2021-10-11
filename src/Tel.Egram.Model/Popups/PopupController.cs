@@ -5,7 +5,7 @@ namespace Tel.Egram.Model.Popups
     public class PopupController : IPopupController
     {
         public Subject<PopupContext> Trigger { get; } = new Subject<PopupContext>();
-        
+
         public void Show(PopupContext context)
         {
             Trigger.OnNext(context);

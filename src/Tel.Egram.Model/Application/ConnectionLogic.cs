@@ -24,7 +24,7 @@ namespace Tel.Egram.Model.Application
         {
             return agent.Updates.OfType<TdApi.Update.UpdateConnectionState>()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Accept(update => 
+                .Accept(update =>
                 {
                     switch (update.State)
                     {
@@ -46,10 +46,11 @@ namespace Tel.Egram.Model.Application
                     }
                 });
         }
-        
+
         private static void UpdateConnectionState(MainWindowModel model, ConnectionState state)
         {
-            string[] stateTexts = {
+            string[] stateTexts =
+            {
                 "Connecting...",
                 "Connecting to proxy...",
                 "Ready.",

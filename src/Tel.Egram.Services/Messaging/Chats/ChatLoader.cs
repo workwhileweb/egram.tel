@@ -22,22 +22,19 @@ namespace Tel.Egram.Services.Messaging.Chats
         public IObservable<Chat> LoadChat(long chatId)
         {
             return _agent.Execute(new TdApi.GetChat
-                {
-                    ChatId = chatId
-                })
+            {
+                ChatId = chatId
+            })
                 .SelectSeq(chat =>
                 {
-                    if (chat.Type is TdApi.ChatType.ChatTypePrivate type)
-                    {
-                        return GetUser(type.UserId)
+                    return chat.Type is TdApi.ChatType.ChatTypePrivate type
+                        ? GetUser(type.UserId)
                             .Select(user => new Chat
                             {
                                 ChatData = chat,
                                 User = user
-                            });
-                    }
-
-                    return Observable.Return(new Chat
+                            })
+                        : Observable.Return(new Chat
                     {
                         ChatData = chat
                     });
@@ -49,17 +46,14 @@ namespace Tel.Egram.Services.Messaging.Chats
             return GetAllChats(new List<TdApi.Chat>())
                 .SelectSeq(chat =>
                 {
-                    if (chat.Type is TdApi.ChatType.ChatTypePrivate type)
-                    {
-                        return GetUser(type.UserId)
+                    return chat.Type is TdApi.ChatType.ChatTypePrivate type
+                        ? GetUser(type.UserId)
                             .Select(user => new Chat
                             {
                                 ChatData = chat,
                                 User = user
-                            });
-                    }
-                    
-                    return Observable.Return(new Chat
+                            })
+                        : Observable.Return(new Chat
                     {
                         ChatData = chat
                     });
@@ -68,74 +62,44 @@ namespace Tel.Egram.Services.Messaging.Chats
 
         public IObservable<Chat> LoadChannels()
         {
-            return LoadChats().Where(chat =>
-            {
-                if (chat.ChatData.Type is TdApi.ChatType.ChatTypeSupergroup supergroupType)
-                {
-                    return supergroupType.IsChannel;
-                }
-                return false;
-            });
+            return LoadChats().Where(chat => chat.ChatData.Type is TdApi.ChatType.ChatTypeSupergroup {IsChannel: true});
         }
 
         public IObservable<Chat> LoadDirects()
         {
-            return LoadChats().Where(chat =>
-            {
-                if (chat.ChatData.Type is TdApi.ChatType.ChatTypePrivate)
-                {
-                    return chat.User != null &&
-                           chat.User.Type is TdApi.UserType.UserTypeRegular;
-                }
-                return false;
-            });
+            return LoadChats().Where(chat => chat.ChatData.Type is TdApi.ChatType.ChatTypePrivate
+                                             && chat.User is {Type: TdApi.UserType.UserTypeRegular _});
         }
 
         public IObservable<Chat> LoadGroups()
         {
-            return LoadChats().Where(chat =>
-            {
-                if (chat.ChatData.Type is TdApi.ChatType.ChatTypeSupergroup supergroupType)
-                {
-                    return !supergroupType.IsChannel;
-                }
-
-                return chat.ChatData.Type is TdApi.ChatType.ChatTypeBasicGroup;
-            });
+            return LoadChats().Where(chat => chat.ChatData.Type is TdApi.ChatType.ChatTypeSupergroup supergroupType
+                ? !supergroupType.IsChannel
+                : chat.ChatData.Type is TdApi.ChatType.ChatTypeBasicGroup);
         }
 
         public IObservable<Chat> LoadBots()
         {
-            return LoadChats().Where(chat =>
-            {
-                if (chat.ChatData.Type is TdApi.ChatType.ChatTypePrivate)
-                {
-                    return chat.User != null &&
-                           chat.User.Type is TdApi.UserType.UserTypeBot;
-                }
-                return false;
-            });
+            return LoadChats().Where(chat => chat.ChatData.Type is TdApi.ChatType.ChatTypePrivate
+                                             && chat.User is {Type: TdApi.UserType.UserTypeBot _});
         }
 
         public IObservable<Chat> LoadPromo()
         {
             return _agent.Execute(new TdApi.GetChat
-                {
-                    ChatId = _promoChatId
-                })
+            {
+                ChatId = _promoChatId
+            })
                 .SelectSeq(chat =>
                 {
-                    if (chat.Type is TdApi.ChatType.ChatTypePrivate type)
-                    {
-                        return GetUser(type.UserId)
+                    return chat.Type is TdApi.ChatType.ChatTypePrivate type
+                        ? GetUser(type.UserId)
                             .Select(user => new Chat
                             {
                                 ChatData = chat,
                                 User = user
-                            });
-                    }
-                        
-                    return Observable.Return(new Chat
+                            })
+                        : Observable.Return(new Chat
                     {
                         ChatData = chat
                     });
@@ -155,31 +119,28 @@ namespace Tel.Egram.Services.Messaging.Chats
             long offsetOrder = long.MaxValue,
             long offsetChatId = 0)
         {
-            int limit = 100;
-            
+            const int limit = 100;
+
             return GetChats(offsetOrder, offsetChatId, limit)
                 .CollectToList()
                 .SelectSeq(list =>
                 {
-                    if (list.Count > 0)
-                    {
-                        var lastChat = list.Last();
-                        chats.AddRange(list);
-                        return GetAllChats(chats, lastChat.Order, lastChat.Id);
-                    }
-                    
-                    return chats.ToObservable();
+                    if (list.Count <= 0) return chats.ToObservable();
+                    var lastChat = list.Last();
+                    chats.AddRange(list);
+                    return GetAllChats(chats, lastChat.Order, lastChat.Id);
+
                 });
         }
 
         private IObservable<TdApi.Chat> GetChats(long offsetOrder, long offsetChatId, int limit)
         {
             return _agent.Execute(new TdApi.GetChats
-                {
-                    OffsetOrder = offsetOrder,
-                    OffsetChatId = offsetChatId,
-                    Limit = limit
-                })
+            {
+                OffsetOrder = offsetOrder,
+                OffsetChatId = offsetChatId,
+                Limit = limit
+            })
                 .SelectMany(result => result.ChatIds)
                 .SelectSeq(chatId => _agent.Execute(new TdApi.GetChat
                 {

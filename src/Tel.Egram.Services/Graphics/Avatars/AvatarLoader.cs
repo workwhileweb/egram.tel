@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Microsoft.Extensions.Caching.Memory;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using TdLib;
 using Tel.Egram.Services.Persistance;
@@ -20,18 +18,19 @@ using DrawingImage = System.Drawing.Image;
 using DrawingBitmap = System.Drawing.Bitmap;
 using DrawingGraphics = System.Drawing.Graphics;
 using DrawingRectangle = System.Drawing.Rectangle;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace Tel.Egram.Services.Graphics.Avatars
 {
     public class AvatarLoader : IAvatarLoader, IDisposable
     {
         private readonly IAvatarCache _cache;
-        private readonly IPlatform _platform;
-        private readonly IStorage _storage;
-        private readonly IFileLoader _fileLoader;
         private readonly IColorMapper _colorMapper;
+        private readonly IFileLoader _fileLoader;
 
         private readonly object _locker;
+        private readonly IPlatform _platform;
+        private readonly IStorage _storage;
 
         public AvatarLoader(
             IPlatform platform,
@@ -45,7 +44,7 @@ namespace Tel.Egram.Services.Graphics.Avatars
             _fileLoader = fileLoader;
             _cache = avatarCache;
             _colorMapper = colorMapper;
-            
+
             _locker = new object();
         }
 
@@ -61,8 +60,8 @@ namespace Tel.Egram.Services.Graphics.Avatars
 
         public Avatar GetAvatar(TdApi.User user, AvatarSize size)
         {
-            int s = _platform.PixelDensity * (int) size;
-            
+            var s = _platform.PixelDensity * (int)size;
+
             return new Avatar
             {
                 Bitmap = GetBitmap(user.ProfilePhoto?.Small, s),
@@ -73,8 +72,8 @@ namespace Tel.Egram.Services.Graphics.Avatars
 
         public Avatar GetAvatar(TdApi.Chat chat, AvatarSize size)
         {
-            int s = _platform.PixelDensity * (int) size;
-            
+            var s = _platform.PixelDensity * (int)size;
+
             return new Avatar
             {
                 Bitmap = GetBitmap(chat.Photo?.Small, s),
@@ -90,8 +89,8 @@ namespace Tel.Egram.Services.Graphics.Avatars
 
         public IObservable<Avatar> LoadAvatar(TdApi.User user, AvatarSize size)
         {
-            int s = _platform.PixelDensity * (int) size;
-            
+            var s = _platform.PixelDensity * (int)size;
+
             return LoadBitmap(user.ProfilePhoto?.Small, s)
                 .Select(bitmap => new Avatar
                 {
@@ -103,8 +102,8 @@ namespace Tel.Egram.Services.Graphics.Avatars
 
         public IObservable<Avatar> LoadAvatar(TdApi.Chat chat, AvatarSize size)
         {
-            int s = _platform.PixelDensity * (int) size;
-            
+            var s = _platform.PixelDensity * (int)size;
+
             return LoadBitmap(chat.Photo?.Small, s)
                 .Select(bitmap => new Avatar
                 {
@@ -114,17 +113,20 @@ namespace Tel.Egram.Services.Graphics.Avatars
                 });
         }
 
+        public void Dispose()
+        {
+            _cache.Dispose();
+        }
+
         private string GetLabel(AvatarKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case AvatarKind.Home:
-                    return "@";
-                default:
-                    return "";
-            }
+                AvatarKind.Home => "@",
+                _ => ""
+            };
         }
-        
+
         private string GetLabel(TdApi.Chat chat)
         {
             var title = chat.Title;
@@ -134,21 +136,11 @@ namespace Tel.Egram.Services.Graphics.Avatars
         private string GetLabel(TdApi.User user)
         {
             if (!string.IsNullOrWhiteSpace(user.FirstName) && !string.IsNullOrWhiteSpace(user.LastName))
-            {
-                return new string(new []{ user.FirstName[0], user.LastName[0] });
-            }
+                return new string(new[] { user.FirstName[0], user.LastName[0] });
 
-            if (!string.IsNullOrWhiteSpace(user.FirstName))
-            {
-                return new string(user.FirstName[0], 1);
-            }
-            
-            if (!string.IsNullOrWhiteSpace(user.LastName))
-            {
-                return new string(user.LastName[0], 1);
-            }
+            if (!string.IsNullOrWhiteSpace(user.FirstName)) return new string(user.FirstName[0], 1);
 
-            return null;
+            return !string.IsNullOrWhiteSpace(user.LastName) ? new string(user.LastName[0], 1) : null;
         }
 
         private Color GetColor(AvatarKind kind)
@@ -171,41 +163,34 @@ namespace Tel.Egram.Services.Graphics.Avatars
             if (file?.Local?.Path != null)
             {
                 var resizedFilePath = GetResizedPath(file.Local.Path, size);
-                if (_cache.TryGetValue(resizedFilePath, out var bitmap))
-                {
-                    return (IBitmap) bitmap;
-                }
+                if (_cache.TryGetValue(resizedFilePath, out var bitmap)) return (IBitmap)bitmap;
             }
 
             return null;
         }
 
         private IObservable<IBitmap> LoadBitmap(TdApi.File file, int size)
-        {   
-            if (file != null)
-            {
-                return _fileLoader.LoadFile(file, LoadPriority.Max)
-                    .FirstAsync(f => f.Local != null && f.Local.IsDownloadingCompleted)
-                    .SelectMany(f => GetBitmapAsync(f.Local.Path, size));
-            }
-
-            return Observable.Return<Bitmap>(null);
+        {
+            return file != null
+                ? _fileLoader.LoadFile(file, LoadPriority.Max)
+                    .FirstAsync(f => f.Local is {IsDownloadingCompleted: true})
+                    .SelectMany(f => GetBitmapAsync(f.Local.Path, size))
+                : Observable.Return<Bitmap>(null);
         }
 
         private Task<Bitmap> GetBitmapAsync(string filePath, int size)
         {
             var resizedFilePath = GetResizedPath(filePath, size);
-            
+
             // return cached version
             if (_cache.TryGetValue(resizedFilePath, out var item))
             {
-                var bitmap = (Bitmap) item;
+                var bitmap = (Bitmap)item;
                 return Task.FromResult(bitmap);
             }
-            
+
             // return resized version from disk
             if (File.Exists(resizedFilePath))
-            {
                 lock (_locker)
                 {
                     if (File.Exists(resizedFilePath))
@@ -218,25 +203,19 @@ namespace Tel.Egram.Services.Graphics.Avatars
                         return Task.FromResult(bitmap);
                     }
                 }
-            }
-            
+
             // resize and return image
-            if (File.Exists(filePath))
-            {
-                return Task.Run(() =>
+            return File.Exists(filePath)
+                ? Task.Run(() =>
                 {
                     lock (_locker)
                     {
                         if (File.Exists(filePath) && !File.Exists(resizedFilePath))
                         {
                             if (_platform is WindowsPlatform)
-                            {
                                 ResizeWithSystemDrawing(filePath, resizedFilePath, size);
-                            }
                             else
-                            {
                                 ResizeWithImageSharp(filePath, resizedFilePath, size);
-                            }
                         }
 
                         if (File.Exists(resizedFilePath))
@@ -251,14 +230,12 @@ namespace Tel.Egram.Services.Graphics.Avatars
 
                         return null;
                     }
-                });
-            }
-
-            return Task.FromResult<Bitmap>(null);
+                })
+                : Task.FromResult<Bitmap>(null);
         }
 
         private string GetResizedPath(string localPath, int size)
-        {   
+        {
             var originalName = Path.GetFileNameWithoutExtension(localPath);
             var originalExtension = Path.GetExtension(localPath);
 
@@ -270,7 +247,7 @@ namespace Tel.Egram.Services.Graphics.Avatars
         private void ResizeWithSystemDrawing(string filePath, string resizedFilePath, int size)
         {
             var image = DrawingImage.FromFile(filePath);
-            
+
             var destRect = new DrawingRectangle(0, 0, size, size);
             var destImage = new DrawingBitmap(size, size);
 
@@ -284,11 +261,9 @@ namespace Tel.Egram.Services.Graphics.Avatars
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-                using (var wrapMode = new ImageAttributes())
-                {
-                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
-                }
+                using var wrapMode = new ImageAttributes();
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
             }
 
             destImage.Save(resizedFilePath);
@@ -296,16 +271,9 @@ namespace Tel.Egram.Services.Graphics.Avatars
 
         private void ResizeWithImageSharp(string filePath, string resizedFilePath, int size)
         {
-            using (SixLabors.ImageSharp.Image<Rgba32> image = SixLabors.ImageSharp.Image.Load(filePath))
-            {
-                image.Mutate(ctx=>ctx.Resize(size, size));
-                image.Save(resizedFilePath);
-            }
-        }
-
-        public void Dispose()
-        {
-            _cache.Dispose();
+            using var image = Image.Load(filePath);
+            image.Mutate(ctx => ctx.Resize(size, size));
+            image.Save(resizedFilePath);
         }
     }
 }

@@ -18,13 +18,12 @@ namespace Tel.Egram.Services.Persistance
 
         public IObservable<TdApi.File> LoadFile(TdApi.File file, LoadPriority priority)
         {
-            if (IsDownloadingNeeded(file))
-            {
-                return _agent.Execute(new TdApi.DownloadFile
-                    {
-                        FileId = file.Id,
-                        Priority = (int) priority
-                    })
+            return IsDownloadingNeeded(file)
+                ? _agent.Execute(new TdApi.DownloadFile
+                {
+                    FileId = file.Id,
+                    Priority = (int)priority
+                })
                     .SelectSeq(downloading =>
                     {
                         return _agent.Updates
@@ -36,10 +35,8 @@ namespace Tel.Egram.Services.Persistance
                     .Concat(Observable.Defer(() => _agent.Execute(new TdApi.GetFile
                     {
                         FileId = file.Id
-                    })));
-            }
-
-            return Observable.Return(file);
+                    })))
+                : Observable.Return(file);
         }
 
         private bool IsDownloadingNeeded(TdApi.File file)

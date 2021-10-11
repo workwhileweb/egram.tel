@@ -18,7 +18,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                 model,
                 Locator.Current.GetService<IPreviewLoader>());
         }
-        
+
         public static IDisposable BindPreviewLoading(
             this PhotoMessageModel model)
         {
@@ -42,7 +42,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                 model,
                 Locator.Current.GetService<IPreviewLoader>());
         }
-        
+
         public static IDisposable BindPreviewLoading(
             this ReplyModel model,
             IPreviewLoader previewLoader)
@@ -65,7 +65,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
 
                 model.HasPreview = true;
             }
-            
+
             return Disposable.Empty;
         }
 
@@ -88,10 +88,10 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                         });
                 }
             }
-            
+
             return Disposable.Empty;
         }
-        
+
         public static IDisposable BindPreviewLoading(
             this VideoMessageModel model,
             IPreviewLoader previewLoader)
@@ -111,10 +111,10 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                         });
                 }
             }
-            
+
             return Disposable.Empty;
         }
-        
+
         public static IDisposable BindPreviewLoading(
             this StickerMessageModel model,
             IPreviewLoader previewLoader)
@@ -134,7 +134,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                         });
                 }
             }
-            
+
             return Disposable.Empty;
         }
 
@@ -150,12 +150,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
                 return previewLoader.GetPreview(model.VideoData.Thumbnail);
             }
 
-            if (model.StickerData?.Thumbnail != null)
-            {
-                return previewLoader.GetPreview(model.StickerData.Thumbnail);
-            }
-
-            return null;
+            return model.StickerData?.Thumbnail != null ? previewLoader.GetPreview(model.StickerData.Thumbnail) : null;
         }
 
         private static IObservable<Preview> LoadPreview(IPreviewLoader previewLoader, ReplyModel model)
@@ -164,86 +159,55 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
             {
                 return previewLoader.LoadPreview(model.PhotoData, PreviewQuality.Low);
             }
-            
+
             if (model.VideoData?.Thumbnail != null)
             {
                 return previewLoader.LoadPreview(model.VideoData.Thumbnail);
             }
-            
-            if (model.StickerData?.Thumbnail != null)
-            {
-                return previewLoader.LoadPreview(model.StickerData.Thumbnail);
-            }
-            
-            return Observable.Empty<Preview>();
+
+            return model.StickerData?.Thumbnail != null ? previewLoader.LoadPreview(model.StickerData.Thumbnail) : Observable.Empty<Preview>();
         }
-        
+
         private static Preview GetPreview(IPreviewLoader previewLoader, PhotoMessageModel model)
         {
-            if (model.PhotoData != null)
-            {
-                return previewLoader.GetPreview(model.PhotoData, PreviewQuality.High);
-            }
-            
-            return null;
+            return model.PhotoData != null ? previewLoader.GetPreview(model.PhotoData, PreviewQuality.High) : null;
         }
-        
+
         private static IObservable<Preview> LoadPreview(IPreviewLoader previewLoader, PhotoMessageModel model)
         {
-            if (model.PhotoData != null)
-            {
-                return previewLoader.LoadPreview(model.PhotoData, PreviewQuality.Low)
-                    .Concat(previewLoader.LoadPreview(model.PhotoData, PreviewQuality.High));
-            }
-            
-            return Observable.Empty<Preview>();
+            return model.PhotoData != null
+                ? previewLoader.LoadPreview(model.PhotoData, PreviewQuality.Low)
+                    .Concat(previewLoader.LoadPreview(model.PhotoData, PreviewQuality.High))
+                : Observable.Empty<Preview>();
         }
-        
+
         private static Preview GetPreview(IPreviewLoader previewLoader, VideoMessageModel model)
         {
-            if (model.VideoData?.Thumbnail != null)
-            {
-                return previewLoader.GetPreview(model.VideoData.Thumbnail);
-            }
-            
-            return null;
+            return model.VideoData?.Thumbnail != null ? previewLoader.GetPreview(model.VideoData.Thumbnail) : null;
         }
-        
+
         private static IObservable<Preview> LoadPreview(IPreviewLoader previewLoader, VideoMessageModel model)
         {
-            if (model.VideoData?.Thumbnail != null)
-            {
-                return previewLoader.LoadPreview(model.VideoData.Thumbnail);
-            }
-            
-            return Observable.Empty<Preview>();
+            return model.VideoData?.Thumbnail != null ? previewLoader.LoadPreview(model.VideoData.Thumbnail) : Observable.Empty<Preview>();
         }
-        
+
         private static Preview GetPreview(IPreviewLoader previewLoader, StickerMessageModel model)
         {
-            if (model.StickerData?.Thumbnail != null)
-            {
-                return previewLoader.GetPreview(model.StickerData.Thumbnail);
-            }
-            
-            return null;
+            return model.StickerData?.Thumbnail != null ? previewLoader.GetPreview(model.StickerData.Thumbnail) : null;
         }
-        
+
         private static IObservable<Preview> LoadPreview(IPreviewLoader previewLoader, StickerMessageModel model)
         {
             if (model.StickerData != null)
             {
-                if (model.StickerData?.Thumbnail != null)
-                {
-                    return previewLoader.LoadPreview(model.StickerData.Thumbnail)
-                        .Concat(previewLoader.LoadPreview(model.StickerData));
-                }
-                
-                return previewLoader.LoadPreview(model.StickerData);
+                return model.StickerData?.Thumbnail != null
+                    ? previewLoader.LoadPreview(model.StickerData.Thumbnail)
+                        .Concat(previewLoader.LoadPreview(model.StickerData))
+                    : previewLoader.LoadPreview(model.StickerData);
             }
-            
+
             return Observable.Empty<Preview>();
         }
-        
+
     }
 }

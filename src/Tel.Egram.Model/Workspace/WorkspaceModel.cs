@@ -11,11 +11,11 @@ namespace Tel.Egram.Model.Workspace
     public class WorkspaceModel : ISupportsActivation
     {
         public NavigationModel NavigationModel { get; set; }
-        
+
         public MessengerModel MessengerModel { get; set; }
-        
+
         public SettingsModel SettingsModel { get; set; }
-        
+
         public int ContentIndex { get; set; }
 
         public WorkspaceModel()
@@ -26,7 +26,7 @@ namespace Tel.Egram.Model.Workspace
                     .DisposeWith(disposables);
             });
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

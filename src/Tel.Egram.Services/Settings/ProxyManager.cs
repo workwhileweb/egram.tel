@@ -15,7 +15,7 @@ namespace Tel.Egram.Services.Settings
         {
             _agent = agent;
         }
-        
+
         public IObservable<TdApi.Proxy[]> GetAllProxies()
         {
             return _agent.Execute(new TdApi.GetProxies())
@@ -25,11 +25,11 @@ namespace Tel.Egram.Services.Settings
         public IObservable<TdApi.Proxy> AddProxy(TdApi.Proxy proxy)
         {
             return _agent.Execute(new TdApi.AddProxy
-                {
-                    Server = proxy.Server,
-                    Port = proxy.Port,
-                    Type = proxy.Type
-                });
+            {
+                Server = proxy.Server,
+                Port = proxy.Port,
+                Type = proxy.Type
+            });
         }
 
         public IObservable<TdApi.Proxy> UpdateProxy(TdApi.Proxy proxy)
@@ -46,19 +46,19 @@ namespace Tel.Egram.Services.Settings
         public IObservable<TdApi.Ok> RemoveProxy(TdApi.Proxy proxy)
         {
             return _agent.Execute(new TdApi.RemoveProxy
-                {
-                    ProxyId = proxy.Id
-                });
+            {
+                ProxyId = proxy.Id
+            });
         }
 
         public IObservable<TdApi.Ok> EnableProxy(TdApi.Proxy proxy)
         {
             return _agent.Execute(new TdApi.EnableProxy
-                {
-                    ProxyId = proxy.Id
-                });
+            {
+                ProxyId = proxy.Id
+            });
         }
-        
+
         public IObservable<TdApi.Ok> DisableProxy()
         {
             return _agent.Execute(new TdApi.DisableProxy());

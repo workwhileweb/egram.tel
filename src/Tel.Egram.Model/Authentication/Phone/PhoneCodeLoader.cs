@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Avalonia;
@@ -29,14 +28,14 @@ namespace Tel.Egram.Model.Authentication.Phone
                 Locator.Current.GetService<IResourceManager>())
         {
         }
-        
+
         public IDisposable Bind(AuthenticationModel model)
         {
             return Task.Run(() =>
                 {
                     var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
                     var codes = _resourceManager.GetPhoneCodes();
-    
+
                     model.PhoneCodes = new ObservableCollectionExtended<PhoneCodeModel>(
                         codes
                             .Select(c => new PhoneCodeModel
@@ -56,11 +55,10 @@ namespace Tel.Egram.Model.Authentication.Phone
 
         private IBitmap GetFlag(IAssetLoader assetLoader, string countryCode)
         {
-            var uri = new Uri($"resm:Tel.Egram.Application.Images.Flags.{countryCode}.png?assembly=Tel.Egram.Application");
+            var uri = new Uri(
+                $"resm:Tel.Egram.Application.Images.Flags.{countryCode}.png?assembly=Tel.Egram.Application");
             if (!assetLoader.Exists(uri))
-            {
-                uri = new Uri($"resm:Tel.Egram.Application.Images.Flags._unknown.png?assembly=Tel.Egram.Application");
-            }
+                uri = new Uri("resm:Tel.Egram.Application.Images.Flags._unknown.png?assembly=Tel.Egram.Application");
 
             using (var stream = assetLoader.Open(uri))
             {

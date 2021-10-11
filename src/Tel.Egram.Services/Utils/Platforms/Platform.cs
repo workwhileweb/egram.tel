@@ -9,14 +9,13 @@ namespace Tel.Egram.Services.Utils.Platforms
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return new WindowsPlatform();
-            
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 return new MacosPlatform();
-            
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return new LinuxPlatform();
-            
-            throw new NotSupportedException("OS is not supported");
+
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                ? new LinuxPlatform()
+                : throw new NotSupportedException("OS is not supported");
         }
 
         public virtual int PixelDensity => 1;

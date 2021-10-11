@@ -21,11 +21,11 @@ namespace Tel.Egram.Services.Authentication
         }
 
         public IObservable<TdApi.AuthorizationState> ObserveState()
-        {   
+        {
             return _agent.Updates.OfType<TdApi.Update.UpdateAuthorizationState>()
                 .Select(update => update.AuthorizationState);
         }
-        
+
         public IObservable<TdApi.Ok> SetupParameters()
         {
             return _agent.Execute(new TdApi.SetTdlibParameters
@@ -60,27 +60,27 @@ namespace Tel.Egram.Services.Authentication
         public IObservable<TdApi.Ok> SetPhoneNumber(string phoneNumber)
         {
             return _agent.Execute(new TdApi.SetAuthenticationPhoneNumber
-                {
-                    PhoneNumber = phoneNumber
-                });
+            {
+                PhoneNumber = phoneNumber
+            });
         }
 
         public IObservable<TdApi.Ok> CheckCode(string code, string firstName, string lastName)
         {
             return _agent.Execute(new TdApi.CheckAuthenticationCode
-                {
-                    Code = code,
-                    FirstName = firstName,
-                    LastName = lastName
-                });
+            {
+                Code = code,
+                FirstName = firstName,
+                LastName = lastName
+            });
         }
 
         public IObservable<TdApi.Ok> CheckPassword(string password)
         {
             return _agent.Execute(new TdApi.CheckAuthenticationPassword
-                {
-                    Password = password
-                });
+            {
+                Password = password
+            });
         }
     }
 }

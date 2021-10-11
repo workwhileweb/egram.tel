@@ -18,7 +18,7 @@ namespace Tel.Egram.Model.Messenger
                 Locator.Current.GetService<INotificationSource>(),
                 Locator.Current.GetService<INotificationController>());
         }
-        
+
         public static IDisposable BindNotifications(
             this MessengerModel model,
             INotificationSource notificationSource,
@@ -37,12 +37,12 @@ namespace Tel.Egram.Model.Messenger
                     {
                         case 0:
                             break;
-                        
+
                         case 1:
                             notificationController.Show(
                                 NotificationModel.FromNotification(notifications[0]));
                             break;
-                        
+
                         default:
                             notificationController.Show(
                                 NotificationModel.FromNotificationList(notifications));

@@ -32,7 +32,7 @@ namespace Tel.Egram.Views.Shared
 
         public static readonly StyledProperty<double> SizeProperty =
             AvaloniaProperty.Register<AvatarControl, double>(nameof(Size));
-        
+
         public AvatarControl()
         {
             AvaloniaXamlLoader.Load(this);
@@ -41,7 +41,7 @@ namespace Tel.Egram.Views.Shared
             ColorProperty.Changed.Subscribe(ColorChanged);
             TextColorProperty.Changed.Subscribe(TextColorChanged);
         }
-        
+
         public IBitmap Source
         {
             get => GetValue(SourceProperty);
@@ -110,14 +110,14 @@ namespace Tel.Egram.Views.Shared
                 {
                     avatarControl.SourceBrush = null;
                 }
-                
+
                 if (e.NewValue is IBitmap bitmap)
                 {
                     avatarControl.SourceBrush = new ImageBrush(bitmap);
                 }
             }
         }
-        
+
         private static void ColorChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.Sender is AvatarControl avatarControl)
@@ -126,14 +126,14 @@ namespace Tel.Egram.Views.Shared
                 {
                     avatarControl.ColorBrush = null;
                 }
-                
+
                 if (e.NewValue is Color color)
                 {
                     avatarControl.ColorBrush = new SolidColorBrush(color);
                 }
             }
         }
-        
+
         private static void TextColorChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.Sender is AvatarControl avatarControl)
@@ -142,7 +142,7 @@ namespace Tel.Egram.Views.Shared
                 {
                     avatarControl.TextColorBrush = null;
                 }
-                
+
                 if (e.NewValue is Color color)
                 {
                     avatarControl.TextColorBrush = new SolidColorBrush(color);

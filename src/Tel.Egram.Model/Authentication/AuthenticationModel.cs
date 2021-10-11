@@ -12,29 +12,6 @@ namespace Tel.Egram.Model.Authentication
     [AddINotifyPropertyChangedInterface]
     public class AuthenticationModel : ISupportsActivation
     {
-        public ReactiveCommand<Unit, Unit> SetProxyCommand { get; set; }
-        
-        public ReactiveCommand<AuthenticationModel, SendCodeResult> SendCodeCommand { get; set; }
-        public ReactiveCommand<AuthenticationModel, CheckCodeResult> CheckCodeCommand { get; set; }
-        public ReactiveCommand<AuthenticationModel, CheckPasswordResult> CheckPasswordCommand { get; set; }
-        
-        public bool IsRegistration { get; set; }
-        
-        public int PasswordIndex { get; set; }
-        public int ConfirmIndex { get; set; }
-        
-        public ObservableCollectionExtended<PhoneCodeModel> PhoneCodes { get; set; }
-        public PhoneCodeModel PhoneCode { get; set; }
-        
-        public string PhoneNumber { get; set; }
-        public int PhoneNumberStart { get; set; }
-        public int PhoneNumberEnd { get; set; }
-        
-        public string ConfirmCode { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Password { get; set; }
-
         public AuthenticationModel()
         {
             this.WhenActivated(disposables =>
@@ -52,6 +29,29 @@ namespace Tel.Egram.Model.Authentication
                     .DisposeWith(disposables);
             });
         }
+
+        public ReactiveCommand<Unit, Unit> SetProxyCommand { get; set; }
+
+        public ReactiveCommand<AuthenticationModel, SendCodeResult> SendCodeCommand { get; set; }
+        public ReactiveCommand<AuthenticationModel, CheckCodeResult> CheckCodeCommand { get; set; }
+        public ReactiveCommand<AuthenticationModel, CheckPasswordResult> CheckPasswordCommand { get; set; }
+
+        public bool IsRegistration { get; set; }
+
+        public int PasswordIndex { get; set; }
+        public int ConfirmIndex { get; set; }
+
+        public ObservableCollectionExtended<PhoneCodeModel> PhoneCodes { get; set; }
+        public PhoneCodeModel PhoneCode { get; set; }
+
+        public string PhoneNumber { get; set; }
+        public int PhoneNumberStart { get; set; }
+        public int PhoneNumberEnd { get; set; }
+
+        public string ConfirmCode { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Password { get; set; }
 
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }

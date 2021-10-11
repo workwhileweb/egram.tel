@@ -17,7 +17,7 @@ namespace Tel.Egram.Services.Utils.Reactive
                 return list;
             });
         }
-        
+
         /// <summary>
         /// Like SelectMany but ordered
         /// </summary>
@@ -35,7 +35,7 @@ namespace Tel.Egram.Services.Utils.Reactive
         {
             return observable.Subscribe(onNext, e => Console.Error.WriteLine(e));
         }
-        
+
         /// <summary>
         /// Subscribe with error handling
         /// </summary>

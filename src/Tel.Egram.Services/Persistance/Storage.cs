@@ -25,26 +25,26 @@ namespace Tel.Egram.Services.Persistance
 
             DataDirectory = Path.Combine(CacheDirectory, "data");
             Directory.CreateDirectory(DataDirectory);
-            
+
             DatabaseFile = Path.Combine(DataDirectory, "app.db");
         }
-        
+
         public Storage() : this("Egram")
         {
         }
 
         public string BaseDirectory { get; }
-        
+
         public string LogDirectory { get; }
-        
+
         public string TdLibDirectory { get; }
-        
+
         public string CacheDirectory { get; }
 
         public string AvatarCacheDirectory { get; }
 
         public string DataDirectory { get; }
-        
+
         public string DatabaseFile { get; }
     }
 }

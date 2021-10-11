@@ -20,8 +20,9 @@ namespace Tel.Egram.Services.Utils.Formatting
         public string FormatMemorySize(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            int order = 0;
-            while (bytes >= 1024 && order < sizes.Length - 1) {
+            var order = 0;
+            while (bytes >= 1024 && order < sizes.Length - 1)
+            {
                 order++;
                 bytes = bytes / 1024;
             }

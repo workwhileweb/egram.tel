@@ -24,21 +24,21 @@ namespace Tel.Egram.Model.Authentication
         }
 
         public AuthenticationManager()
-            : this (
+            : this(
                 Locator.Current.GetService<IAuthenticator>())
         {
         }
-        
+
         public IDisposable Bind(AuthenticationModel model)
         {
             var canSendCode = model
                 .WhenAnyValue(x => x.PhoneNumber)
                 .Select(phone => IsPhoneValid(model, phone));
-            
+
             var canCheckCode = model
                 .WhenAnyValue(x => x.ConfirmCode)
                 .Select(code => !string.IsNullOrWhiteSpace(code));
-            
+
             var canCheckPassword = model
                 .WhenAnyValue(x => x.Password)
                 .Select(password => !string.IsNullOrWhiteSpace(password));
@@ -54,7 +54,7 @@ namespace Tel.Egram.Model.Authentication
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Accept(phoneCode => HandlePhoneCodeChange(model, phoneCode))
                 .DisposeWith(disposable);
-            
+
             model.SendCodeCommand = ReactiveCommand.CreateFromObservable(
                     (AuthenticationModel m) =>
                     {
@@ -71,7 +71,7 @@ namespace Tel.Egram.Model.Authentication
                     canCheckCode,
                     RxApp.MainThreadScheduler)
                 .DisposeWith(disposable);
-            
+
             model.CheckPasswordCommand = ReactiveCommand.CreateFromObservable(
                     (AuthenticationModel m) => CheckPassword(m.Password),
                     canCheckPassword,
@@ -105,11 +105,11 @@ namespace Tel.Egram.Model.Authentication
                 case TdApi.AuthorizationState.AuthorizationStateWaitPhoneNumber _:
                     OnWaitingPhoneNumber(model);
                     break;
-                        
+
                 case TdApi.AuthorizationState.AuthorizationStateWaitCode wait:
                     OnWaitingConfirmCode(model, !wait.IsRegistered);
                     break;
-                        
+
                 case TdApi.AuthorizationState.AuthorizationStateWaitPassword _:
                     OnWaitingPassword(model);
                     break;
@@ -125,7 +125,7 @@ namespace Tel.Egram.Model.Authentication
         private void OnWaitingConfirmCode(AuthenticationModel model, bool isRegistration)
         {
             model.IsRegistration = isRegistration;
-            
+
             model.ConfirmIndex = 1;
             model.PasswordIndex = 0;
         }
@@ -137,7 +137,7 @@ namespace Tel.Egram.Model.Authentication
         }
 
         private IObservable<SendCodeResult> SendCode(string phoneNumber)
-        {   
+        {
             return _authenticator
                 .SetPhoneNumber(phoneNumber)
                 .Select(_ => new SendCodeResult());
@@ -162,41 +162,28 @@ namespace Tel.Egram.Model.Authentication
 
         private bool IsPhoneValid(AuthenticationModel model, string phone)
         {
-            if (string.IsNullOrWhiteSpace(phone))
-            {
-                return false;
-            }
-            
-            var mask = model.PhoneCode?.Mask;
-            
-            if (string.IsNullOrWhiteSpace(mask))
-            {
-                return !string.IsNullOrWhiteSpace(phone);
-            }
+            if (string.IsNullOrWhiteSpace(phone)) return false;
 
-            return phone.All(c => char.IsDigit(c) || char.IsWhiteSpace(c))
-                && phone.Count(char.IsDigit) == mask.Count(c => !char.IsWhiteSpace(c));
+            var mask = model.PhoneCode?.Mask;
+
+            return string.IsNullOrWhiteSpace(mask)
+                ? !string.IsNullOrWhiteSpace(phone)
+                : phone.All(c => char.IsDigit(c) || char.IsWhiteSpace(c))
+                   && phone.Count(char.IsDigit) == mask.Count(c => !char.IsWhiteSpace(c));
         }
 
         private string FormatPhone(string phone, string mask)
         {
-            if (string.IsNullOrWhiteSpace(phone))
-            {
-                return "";
-            }
+            if (string.IsNullOrWhiteSpace(phone)) return "";
 
             var numbers = new string(phone.Where(char.IsDigit).ToArray());
-            
-            if (string.IsNullOrWhiteSpace(mask))
-            {
-                return numbers;
-            }
-            
+
+            if (string.IsNullOrWhiteSpace(mask)) return numbers;
+
             var builder = new StringBuilder(mask.Length);
 
-            int i = 0;
+            var i = 0;
             foreach (var ch in mask)
-            {
                 if (i < numbers.Length)
                 {
                     if (char.IsWhiteSpace(ch))
@@ -209,7 +196,6 @@ namespace Tel.Egram.Model.Authentication
                         i++;
                     }
                 }
-            }
 
             return builder.ToString();
         }

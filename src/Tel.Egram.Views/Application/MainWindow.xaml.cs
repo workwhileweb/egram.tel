@@ -15,7 +15,7 @@ namespace Tel.Egram.Views.Application
                 this.BindNotifications()
                     .DisposeWith(disposables);
             });
-            
+
             AvaloniaXamlLoader.Load(this);
             this.AttachDevTools();
         }

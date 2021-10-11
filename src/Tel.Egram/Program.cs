@@ -1,10 +1,9 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Platform;
 using Splat;
 using Tel.Egram.Application;
-using Tel.Egram.Views.Application;
 using Tel.Egram.Model.Application;
+using Tel.Egram.Views.Application;
 
 namespace Tel.Egram
 {
@@ -23,7 +22,7 @@ namespace Tel.Egram
             services.AddTdLib();
             services.AddPersistance();
             services.AddServices();
-            
+
             services.AddComponents();
             services.AddApplication();
             services.AddAuthentication();
@@ -39,7 +38,7 @@ namespace Tel.Egram
             var builder = AppBuilder.Configure(app);
             var runtime = builder.RuntimePlatform.GetRuntimeInfo();
             var model = new MainWindowModel();
-            
+
             switch (runtime.OperatingSystem)
             {
                 case OperatingSystemType.OSX:
@@ -51,7 +50,7 @@ namespace Tel.Egram
                         })
                         .UseSkia();
                     break;
-                
+
                 case OperatingSystemType.Linux:
                     builder.UseX11()
                         .With(new X11PlatformOptions
@@ -60,7 +59,7 @@ namespace Tel.Egram
                         })
                         .UseSkia();
                     break;
-                
+
                 default:
                     builder.UseWin32()
                         .With(new Win32PlatformOptions

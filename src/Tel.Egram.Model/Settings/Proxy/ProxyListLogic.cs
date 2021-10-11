@@ -20,11 +20,11 @@ namespace Tel.Egram.Model.Settings.Proxy
                 context,
                 Locator.Current.GetService<IProxyManager>());
         }
-        
+
         public static IDisposable BindProxyLogic(
             this ProxyPopupContext context,
             IProxyManager proxyManager)
-        {   
+        {
             return new CompositeDisposable(
                 context.BindRemoveAction(proxyManager),
                 context.BindEnableAction(proxyManager),
@@ -45,7 +45,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                 {
                     var disabledProxy = ProxyModel.DisabledProxy();
                     disabledProxy.EnableCommand = context.EnableProxyCommand;
-                    
+
                     var otherProxies = Enumerable.Select<TdApi.Proxy, ProxyModel>(proxies, p =>
                         {
                             var proxyModel = ProxyModel.FromProxy(p);
@@ -54,11 +54,11 @@ namespace Tel.Egram.Model.Settings.Proxy
                             return proxyModel;
                         })
                         .ToList();
-                    
+
                     context.Proxies = new ObservableCollectionExtended<ProxyModel>();
                     context.Proxies.Add(disabledProxy);
                     context.Proxies.AddRange(otherProxies);
-                    
+
                     if (context.SelectedProxy == null)
                     {
                         context.SelectedProxy = otherProxies.FirstOrDefault(p => p.IsEnabled)
@@ -71,7 +71,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                     }
                 });
         }
-        
+
         private static IDisposable BindEditing(
             this ProxyPopupContext context,
             IProxyManager proxyManager)
@@ -79,12 +79,9 @@ namespace Tel.Egram.Model.Settings.Proxy
             return context.WhenAnyValue(c => c.SelectedProxy)
                 .SelectMany(sp =>
                 {
-                    if (sp == null)
-                    {
-                        return Observable.Empty<ProxyModel>();
-                    }
-                    
-                    return Observable.Merge(
+                    return sp == null
+                        ? Observable.Empty<ProxyModel>()
+                        : Observable.Merge(
                         sp.WhenAnyValue(p => p.IsSocks5).Skip(1).Select(_ => sp),
                         sp.WhenAnyValue(p => p.IsHttp).Skip(1).Select(_ => sp),
                         sp.WhenAnyValue(p => p.IsMtProto).Skip(1).Select(_ => sp),
@@ -97,7 +94,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                 .Accept(sp =>
                 {
                     sp.IsSaved = false;
-                    
+
                     sp.IsServerInputVisible = true;
                     sp.IsUsernameInputVisible = sp.IsSocks5 || sp.IsHttp;
                     sp.IsPasswordInputVisible = sp.IsSocks5 || sp.IsHttp;
@@ -121,7 +118,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                     {
                         context.SelectedProxy = context.Proxies.FirstOrDefault();
                     }
-            
+
                     context.Proxies.Remove(proxyModel);
                 });
         }
@@ -144,7 +141,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                         {
                             proxy.IsEnabled = false;
                         }
-                
+
                         proxyModel.IsEnabled = true;
                     }
                 });
@@ -164,7 +161,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                 {
                     proxyModel.RemoveCommand = context.RemoveProxyCommand;
                     proxyModel.EnableCommand = context.EnableProxyCommand;
-            
+
                     context.Proxies.Add(proxyModel);
                     context.SelectedProxy = proxyModel;
                 });
@@ -173,7 +170,7 @@ namespace Tel.Egram.Model.Settings.Proxy
         private static IDisposable BindSaveAction(
             this ProxyPopupContext context,
             IProxyManager proxyManager)
-        {   
+        {
             context.SaveProxyCommand = ReactiveCommand.CreateFromObservable(
                 (ProxyModel proxyModel) => context.SaveProxy(proxyManager, proxyModel),
                 null,
@@ -200,7 +197,7 @@ namespace Tel.Egram.Model.Settings.Proxy
                     Password = null
                 }
             };
-            
+
             var proxyModel = ProxyModel.FromProxy(proxy);
             return Observable.Return(proxyModel);
         }
@@ -210,13 +207,10 @@ namespace Tel.Egram.Model.Settings.Proxy
             IProxyManager proxyManager,
             ProxyModel proxyModel)
         {
-            if (proxyModel.Proxy != null && proxyModel.Proxy.Id != 0)
-            {
-                return proxyManager.RemoveProxy(proxyModel.Proxy)
-                    .Select(_ => proxyModel);
-            }
-            
-            return Observable.Return(proxyModel);
+            return proxyModel.Proxy != null && proxyModel.Proxy.Id != 0
+                ? proxyManager.RemoveProxy(proxyModel.Proxy)
+                    .Select(_ => proxyModel)
+                : Observable.Return(proxyModel);
         }
 
         private static IObservable<ProxyModel> SaveProxy(
@@ -224,15 +218,12 @@ namespace Tel.Egram.Model.Settings.Proxy
             IProxyManager proxyManager,
             ProxyModel proxyModel)
         {
-            if (proxyModel.Proxy.Id == 0)
-            {
-                return proxyManager
+            return proxyModel.Proxy.Id == 0
+                ? proxyManager
                     .AddProxy(proxyModel.ToProxy())
                     .Do(proxy => proxyModel.Proxy = proxy)
-                    .Select(_ => proxyModel);
-            }
-
-            return proxyManager
+                    .Select(_ => proxyModel)
+                : proxyManager
                 .UpdateProxy(proxyModel.Proxy)
                 .Do(proxy => proxyModel.Proxy = proxy)
                 .Select(_ => proxyModel);
@@ -245,18 +236,15 @@ namespace Tel.Egram.Model.Settings.Proxy
         {
             if (!proxyModel.IsEnabled)
             {
-                if (proxyModel.Proxy != null)
-                {
-                    return proxyManager
+                return proxyModel.Proxy != null
+                    ? proxyManager
                         .EnableProxy(proxyModel.Proxy)
-                        .Select(_ => proxyModel);
-                }
-                
-                return proxyManager
+                        .Select(_ => proxyModel)
+                    : proxyManager
                     .DisableProxy()
                     .Select(_ => proxyModel);
             }
-            
+
             return Observable.Return(proxyModel);
         }
     }

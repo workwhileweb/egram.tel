@@ -17,7 +17,7 @@ namespace Tel.Egram.Model.Messenger.Catalog.Entries
                 model,
                 Locator.Current.GetService<IAvatarLoader>());
         }
-        
+
         public static IDisposable BindAvatarLoading(
             this EntryModel model,
             IAvatarLoader avatarLoader)
@@ -27,62 +27,36 @@ namespace Tel.Egram.Model.Messenger.Catalog.Entries
                 model.Avatar = GetAvatar(avatarLoader, model);
 
                 if (model.Avatar == null || model.Avatar.IsFallback)
-                {
                     return LoadAvatar(avatarLoader, model)
-                        .Accept(avatar =>
-                        {
-                            model.Avatar = avatar;
-                        });
-                }
+                        .Accept(avatar => { model.Avatar = avatar; });
             }
-            
+
             return Disposable.Empty;
         }
 
         private static Avatar GetAvatar(IAvatarLoader avatarLoader, EntryModel entry)
         {
-            switch (entry)
+            return entry switch
             {
-                case HomeEntryModel _:
-                    return avatarLoader.GetAvatar(
-                        AvatarKind.Home,
-                        AvatarSize.Small);
-                
-                case ChatEntryModel chatEntryModel:
-                    return avatarLoader.GetAvatar(chatEntryModel.Chat.ChatData, AvatarSize.Small);
-                
-                case AggregateEntryModel aggregateEntryModel:
-                    return avatarLoader.GetAvatar(new TdApi.Chat
-                        {
-                            Id = aggregateEntryModel.Aggregate.Id
-                        },
-                        AvatarSize.Small);
-            }
-
-            return null;
+                HomeEntryModel _ => avatarLoader.GetAvatar(AvatarKind.Home, AvatarSize.Small),
+                ChatEntryModel chatEntryModel => avatarLoader.GetAvatar(chatEntryModel.Chat.ChatData, AvatarSize.Small),
+                AggregateEntryModel aggregateEntryModel => avatarLoader.GetAvatar(
+                    new TdApi.Chat { Id = aggregateEntryModel.Aggregate.Id }, AvatarSize.Small),
+                _ => null
+            };
         }
-        
+
         private static IObservable<Avatar> LoadAvatar(IAvatarLoader avatarLoader, EntryModel entry)
-        {   
-            switch (entry)
+        {
+            return entry switch
             {
-                case HomeEntryModel _:
-                    return avatarLoader.LoadAvatar(
-                        AvatarKind.Home,
-                        AvatarSize.Small);
-                
-                case ChatEntryModel chatEntryModel:
-                    return avatarLoader.LoadAvatar(chatEntryModel.Chat.ChatData, AvatarSize.Small);
-                
-                case AggregateEntryModel aggregateEntryModel:
-                    return avatarLoader.LoadAvatar(new TdApi.Chat
-                        {
-                            Id = aggregateEntryModel.Aggregate.Id
-                        },
-                        AvatarSize.Small);
-            }
-            
-            return Observable.Empty<Avatar>();
+                HomeEntryModel _ => avatarLoader.LoadAvatar(AvatarKind.Home, AvatarSize.Small),
+                ChatEntryModel chatEntryModel =>
+                    avatarLoader.LoadAvatar(chatEntryModel.Chat.ChatData, AvatarSize.Small),
+                AggregateEntryModel aggregateEntryModel => avatarLoader.LoadAvatar(
+                    new TdApi.Chat { Id = aggregateEntryModel.Aggregate.Id }, AvatarSize.Small),
+                _ => Observable.Empty<Avatar>()
+            };
         }
     }
 }

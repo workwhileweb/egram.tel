@@ -17,11 +17,11 @@ namespace Tel.Egram.Model.Authentication.Proxy
         }
 
         public ProxyManager()
-            : this (
+            : this(
                 Locator.Current.GetService<IPopupController>())
         {
         }
-        
+
         public IDisposable Bind(AuthenticationModel model)
         {
             model.SetProxyCommand = ReactiveCommand.Create(

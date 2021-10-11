@@ -10,7 +10,7 @@ namespace Tel.Egram.Services.Utils.TdLib
 
         IObservable<T> Execute<T>(TdApi.Function<T> function)
             where T : TdApi.Object;
-        
+
         IObservable<T> Execute<T>(TdApi.Function<T> function, TimeSpan timeout)
             where T : TdApi.Object;
 

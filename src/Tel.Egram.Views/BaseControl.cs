@@ -11,7 +11,7 @@ namespace Tel.Egram.Views
     /// </summary>
     public class BaseControl<TViewModel> : ReactiveUserControl<TViewModel>
         where TViewModel : class
-    {   
+    {
         public BaseControl(bool activate = true)
         {
             if (activate)

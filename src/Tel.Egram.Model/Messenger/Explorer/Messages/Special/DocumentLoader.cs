@@ -19,13 +19,13 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Special
         {
             _fileLoader = fileLoader;
         }
-        
+
         public DocumentLoader()
             : this(
                 Locator.Current.GetService<IFileLoader>())
         {
         }
-        
+
         public IDisposable Bind(
             DocumentMessageModel model)
         {
@@ -35,20 +35,20 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Special
             var file = model.Document.Document_;
             model.IsDownloaded = (file.Local?.IsDownloadingCompleted ?? false)
                                  && File.Exists(file.Local?.Path);
-            
+
             return model.DownloadCommand.Subscribe(isDownloaded =>
             {
                 model.IsDownloaded = isDownloaded;
             });
         }
-        
+
         private IObservable<bool> Download(
             DocumentMessageModel model)
         {
             var file = model.Document.Document_;
 
             return _fileLoader.LoadFile(file, LoadPriority.Mid)
-                .FirstAsync(f => f.Local != null && f.Local.IsDownloadingCompleted)
+                .FirstAsync(f => f.Local is {IsDownloadingCompleted: true})
                 .SubscribeOn(RxApp.TaskpoolScheduler)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(f => f.Local.IsDownloadingCompleted);

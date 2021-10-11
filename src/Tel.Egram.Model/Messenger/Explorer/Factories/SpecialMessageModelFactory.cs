@@ -15,7 +15,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
         {
             _stringFormatter = stringFormatter;
         }
-        
+
         public DocumentMessageModel CreateDocumentMessage(
             Message message,
             TdApi.MessageContent.MessageDocument messageDocument)
@@ -24,7 +24,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
             var name = messageDocument.Document.FileName;
             var text = messageDocument.Caption.Text;
             var size = $"({_stringFormatter.FormatMemorySize(messageDocument.Document.Document_.Size)})";
-            
+
             return new DocumentMessageModel
             {
                 Document = document,
@@ -33,14 +33,14 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
                 Size = size
             };
         }
-        
+
         public MessageModel CreateGameScoreMessage(
             Message message,
             TdApi.MessageContent.MessageGameScore gameScore)
         {
             return new UnsupportedMessageModel();
         }
-        
+
         public MessageModel CreatePaymentSuccessfulMessage(
             Message message,
             TdApi.MessageContent.MessagePaymentSuccessful paymentSuccessful)

@@ -15,7 +15,7 @@ namespace Tel.Egram.Services.Messaging.Notifications
         {
             _agent = agent;
         }
-        
+
         /// <summary>
         /// Get notifications for new chats
         /// </summary>
@@ -50,13 +50,13 @@ namespace Tel.Egram.Services.Messaging.Notifications
                         });
                 });
         }
-        
+
         private IObservable<TdApi.Chat> GetChat(long chatId)
         {
             return _agent.Execute(new TdApi.GetChat
-                {
-                    ChatId = chatId
-                });
+            {
+                ChatId = chatId
+            });
         }
     }
 }

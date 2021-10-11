@@ -37,13 +37,13 @@ namespace Tel.Egram
             services.RegisterLazySingleton<IPlatform>(Platform.GetPlatform);
             services.RegisterLazySingleton<IStringFormatter>(() => new StringFormatter());
         }
-        
+
         public static void AddTdLib(this IMutableDependencyResolver services)
         {
             services.RegisterLazySingleton(() =>
             {
                 var storage = services.GetService<IStorage>();
-                
+
                 Client.Log.SetFilePath(Path.Combine(storage.LogDirectory, "tdlib.log"));
                 Client.Log.SetMaxFileSize(1_000_000); // 1MB
                 Client.Log.SetVerbosityLevel(5);
@@ -70,34 +70,34 @@ namespace Tel.Egram
                 return new Agent(hub, dialer);
             });
         }
-        
+
         public static void AddPersistance(this IMutableDependencyResolver services)
         {
             services.RegisterLazySingleton<IResourceManager>(
                 () => new ResourceManager(typeof(MainApplication).Assembly));
-            
+
             services.RegisterLazySingleton<IStorage>(() => new Storage());
-            
+
             services.RegisterLazySingleton<IFileLoader>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new FileLoader(agent);
             });
-            
+
             services.RegisterLazySingleton<IFileExplorer>(() =>
             {
                 var platform = services.GetService<IPlatform>();
                 return new FileExplorer(platform);
             });
-            
+
             services.RegisterLazySingleton<IDatabaseContextFactory>(() => new DatabaseContextFactory());
-            
+
             services.RegisterLazySingleton(() =>
             {
                 var factory = services.GetService<IDatabaseContextFactory>();
                 return factory.CreateDbContext();
             });
-            
+
             services.RegisterLazySingleton<IKeyValueStorage>(() =>
             {
                 var db = services.GetService<DatabaseContext>();
@@ -109,13 +109,13 @@ namespace Tel.Egram
         {
             // graphics
             services.RegisterLazySingleton<IColorMapper>(() => new ColorMapper());
-            
+
             services.RegisterLazySingleton<IBitmapLoader>(() =>
             {
                 var fileLoader = services.GetService<IFileLoader>();
                 return new BitmapLoader(fileLoader);
             });
-            
+
             // avatars
             services.RegisterLazySingleton<IAvatarCache>(() =>
             {
@@ -125,7 +125,7 @@ namespace Tel.Egram
                 });
                 return new AvatarCache(new MemoryCache(options));
             });
-            
+
             services.RegisterLazySingleton<IAvatarLoader>(() =>
             {
                 var platform = services.GetService<IPlatform>();
@@ -133,7 +133,7 @@ namespace Tel.Egram
                 var fileLoader = services.GetService<IFileLoader>();
                 var avatarCache = services.GetService<IAvatarCache>();
                 var colorMapper = services.GetService<IColorMapper>();
-                
+
                 return new AvatarLoader(
                     platform,
                     storage,
@@ -141,7 +141,7 @@ namespace Tel.Egram
                     avatarCache,
                     colorMapper);
             });
-            
+
             // previews
             services.RegisterLazySingleton<IPreviewCache>(() =>
             {
@@ -151,36 +151,36 @@ namespace Tel.Egram
                 });
                 return new PreviewCache(new MemoryCache(options));
             });
-            
+
             services.RegisterLazySingleton<IPreviewLoader>(() =>
             {
                 var fileLoader = services.GetService<IFileLoader>();
                 var previewCache = services.GetService<IPreviewCache>();
-                
+
                 return new PreviewLoader(
                     fileLoader,
                     previewCache);
             });
-            
+
             // chats
             services.RegisterLazySingleton<IChatLoader>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new ChatLoader(agent);
             });
-            
+
             services.RegisterLazySingleton<IChatUpdater>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new ChatUpdater(agent);
             });
-            
+
             services.RegisterLazySingleton<IFeedLoader>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new FeedLoader(agent);
             });
-            
+
             // messages
             services.RegisterLazySingleton<IMessageLoader>(() =>
             {
@@ -192,21 +192,21 @@ namespace Tel.Egram
                 var agent = services.GetService<IAgent>();
                 return new MessageSender(agent);
             });
-            
+
             // notifications
             services.RegisterLazySingleton<INotificationSource>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new NotificationSource(agent);
             });
-            
+
             // users
             services.RegisterLazySingleton<IUserLoader>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new UserLoader(agent);
             });
-            
+
             // auth
             services.RegisterLazySingleton<IAuthenticator>(() =>
             {
@@ -214,7 +214,7 @@ namespace Tel.Egram
                 var storage = services.GetService<IStorage>();
                 return new Authenticator(agent, storage);
             });
-            
+
             // settings
             services.RegisterLazySingleton<IProxyManager>(() =>
             {
@@ -228,23 +228,23 @@ namespace Tel.Egram
             services.RegisterLazySingleton<INotificationController>(() => new NotificationController());
             services.RegisterLazySingleton<IPopupController>(() => new PopupController());
         }
-        
+
         public static void AddApplication(this IMutableDependencyResolver services)
         {
             services.RegisterLazySingleton(() =>
             {
                 var application = new MainApplication();
-                
+
                 application.Initializing += (sender, args) =>
                 {
                     var db = services.GetService<DatabaseContext>();
                     db.Database.Migrate();
-                
+
                     var hub = services.GetService<Hub>();
                     var task = Task.Factory.StartNew(
                         () => hub.Start(),
                         TaskCreationOptions.LongRunning);
-                    
+
                     task.ContinueWith(t =>
                     {
                         var exception = t.Exception;
@@ -260,49 +260,49 @@ namespace Tel.Egram
                     var hub = services.GetService<Hub>();
                     hub.Stop();
                 };
-                
+
                 return application;
             });
         }
-        
+
         public static void AddAuthentication(this IMutableDependencyResolver services)
         {
             //
         }
-        
+
         public static void AddMessenger(this IMutableDependencyResolver services)
-        {   
+        {
             // messenger
             services.RegisterLazySingleton<IBasicMessageModelFactory>(() =>
             {
                 return new BasicMessageModelFactory();
             });
-            
+
             services.RegisterLazySingleton<INoteMessageModelFactory>(() =>
             {
                 return new NoteMessageModelFactory();
             });
-            
+
             services.RegisterLazySingleton<ISpecialMessageModelFactory>(() =>
             {
                 var stringFormatter = new StringFormatter();
                 return new SpecialMessageModelFactory(stringFormatter);
             });
-            
+
             services.RegisterLazySingleton<IVisualMessageModelFactory>(() =>
             {
                 return new VisualMessageModelFactory();
             });
-            
+
             services.RegisterLazySingleton<IMessageModelFactory>(() =>
             {
                 var basicMessageModelFactory = services.GetService<IBasicMessageModelFactory>();
                 var noteMessageModelFactory = services.GetService<INoteMessageModelFactory>();
                 var specialMessageModelFactory = services.GetService<ISpecialMessageModelFactory>();
                 var visualMessageModelFactory = services.GetService<IVisualMessageModelFactory>();
-                
+
                 var stringFormatter = new StringFormatter();
-                
+
                 return new MessageModelFactory(
                     basicMessageModelFactory,
                     noteMessageModelFactory,
@@ -311,12 +311,12 @@ namespace Tel.Egram
                     stringFormatter);
             });
         }
-        
+
         public static void AddSettings(this IMutableDependencyResolver services)
         {
             //
         }
-        
+
         public static void AddWorkspace(this IMutableDependencyResolver services)
         {
             //

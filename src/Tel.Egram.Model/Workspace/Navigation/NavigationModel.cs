@@ -20,7 +20,7 @@ namespace Tel.Egram.Model.Workspace.Navigation
                     .DisposeWith(disposables);
             });
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

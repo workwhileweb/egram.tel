@@ -30,7 +30,7 @@ namespace Tel.Egram.Model.Messenger.Editor
             var canSendCode = model
                 .WhenAnyValue(m => m.Text)
                 .Select(text => !string.IsNullOrWhiteSpace(text));
-            
+
             model.SendCommand = ReactiveCommand.CreateFromObservable(
                 () => messageSender.SendMessage(chat.ChatData,
                         new TdApi.InputMessageContent.InputMessageText
@@ -48,10 +48,7 @@ namespace Tel.Egram.Model.Messenger.Editor
             return model.SendCommand
                 .SubscribeOn(RxApp.TaskpoolScheduler)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Accept(_ =>
-                {
-                    model.Text = null;
-                });
+                .Accept(_ => { model.Text = null; });
         }
     }
 }

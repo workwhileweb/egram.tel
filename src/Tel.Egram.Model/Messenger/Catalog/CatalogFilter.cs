@@ -22,64 +22,52 @@ namespace Tel.Egram.Model.Messenger.Catalog
                 {
                     var sorting = GetSorting(e => e.Order);
                     var filter = GetFilter(section);
-                    
+
                     if (!string.IsNullOrWhiteSpace(text))
                     {
                         sorting = GetSorting(e => e.Title);
-                        
+
                         filter = entry =>
                             entry.Title.Contains(text)
                             && GetFilter(section)(entry);
                     }
-                    
+
                     model.SortingController.OnNext(sorting);
                     model.FilterController.OnNext(filter);
                 });
         }
-        
+
         private static Func<EntryModel, bool> GetFilter(Section section)
         {
-            switch (section)
+            return section switch
             {
-                case Section.Bots:
-                    return BotFilter;
-                
-                case Section.Channels:
-                    return ChannelFilter;
-                
-                case Section.Groups:
-                    return GroupFilter;
-                
-                case Section.Directs:
-                    return DirectFilter;
-                
-                case Section.Home:
-                default:
-                    return All;
-            }
+                Section.Bots => BotFilter,
+                Section.Channels => ChannelFilter,
+                Section.Groups => GroupFilter,
+                Section.Directs => DirectFilter,
+                _ => All,
+            };
         }
 
         private static IComparer<EntryModel> GetSorting(Func<EntryModel, IComparable> f)
         {
             return SortExpressionComparer<EntryModel>.Ascending(f);
         }
-        
+
         private static bool All(EntryModel model)
         {
             return true;
         }
-        
+
         private static bool BotFilter(EntryModel model)
         {
             if (model is ChatEntryModel chatEntryModel)
             {
                 var chat = chatEntryModel.Chat;
                 if (chat.ChatData.Type is TdApi.ChatType.ChatTypePrivate)
-                {
-                    return chat.User != null &&
-                           chat.User.Type is TdApi.UserType.UserTypeBot;
-                }
+                    return chat.User is {Type: TdApi.UserType.UserTypeBot _};
             }
+
             return false;
         }
 
@@ -89,11 +77,9 @@ namespace Tel.Egram.Model.Messenger.Catalog
             {
                 var chat = chatEntryModel.Chat;
                 if (chat.ChatData.Type is TdApi.ChatType.ChatTypePrivate)
-                {
-                    return chat.User != null &&
-                           chat.User.Type is TdApi.UserType.UserTypeRegular;
-                }
+                    return chat.User is {Type: TdApi.UserType.UserTypeRegular _};
             }
+
             return false;
         }
 
@@ -102,13 +88,11 @@ namespace Tel.Egram.Model.Messenger.Catalog
             if (model is ChatEntryModel chatEntryModel)
             {
                 var chat = chatEntryModel.Chat;
-                if (chat.ChatData.Type is TdApi.ChatType.ChatTypeSupergroup supergroupType)
-                {
-                    return !supergroupType.IsChannel;
-                }
-
-                return chat.ChatData.Type is TdApi.ChatType.ChatTypeBasicGroup;
+                return chat.ChatData.Type is TdApi.ChatType.ChatTypeSupergroup supergroupType
+                    ? !supergroupType.IsChannel
+                    : chat.ChatData.Type is TdApi.ChatType.ChatTypeBasicGroup;
             }
+
             return false;
         }
 

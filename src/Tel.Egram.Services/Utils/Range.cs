@@ -11,7 +11,7 @@ namespace Tel.Egram.Services.Utils
             Index = index;
             Length = length;
         }
-        
+
         public override bool Equals(object obj)
         {
             return obj is Range range && this == range;
@@ -21,17 +21,17 @@ namespace Tel.Egram.Services.Utils
         {
             return Index ^ Length;
         }
-        
+
         public static bool operator ==(Range x, Range y)
         {
             return x.Index == y.Index && x.Length == y.Length;
         }
-        
+
         public static bool operator !=(Range x, Range y)
         {
             return !(x == y);
         }
-        
+
         public override string ToString()
         {
             return Length == 0 ? $"({Length})" : $"({Length}, {Index}-{LastIndex})";

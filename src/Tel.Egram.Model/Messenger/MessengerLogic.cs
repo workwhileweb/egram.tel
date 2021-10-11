@@ -25,30 +25,23 @@ namespace Tel.Egram.Model.Messenger
         public static IDisposable BindInformer(this MessengerModel model)
         {
             model.InformerModel = InformerModel.Hidden();
-            
+
             return model.SubscribeToSelection(entry =>
             {
-                switch (entry)
+                model.InformerModel = entry switch
                 {
-                    case ChatEntryModel chatEntryModel:
-                        model.InformerModel = new InformerModel(chatEntryModel.Chat);
-                        break;
-                    
-                    case AggregateEntryModel aggregateEntryModel:
-                        model.InformerModel = new InformerModel(aggregateEntryModel.Aggregate);
-                        break;
-                    
-                    case HomeEntryModel _:
-                        model.InformerModel = InformerModel.Hidden();
-                        break;
-                }
+                    ChatEntryModel chatEntryModel => new InformerModel(chatEntryModel.Chat),
+                    AggregateEntryModel aggregateEntryModel => new InformerModel(aggregateEntryModel.Aggregate),
+                    HomeEntryModel _ => InformerModel.Hidden(),
+                    _ => model.InformerModel
+                };
             });
         }
 
         public static IDisposable BindExplorer(this MessengerModel model)
         {
             model.ExplorerModel = ExplorerModel.Hidden();
-            
+
             return model.SubscribeToSelection(entry =>
             {
                 switch (entry)
@@ -56,13 +49,15 @@ namespace Tel.Egram.Model.Messenger
                     case ChatEntryModel chatEntryModel:
                         model.ExplorerModel = new ExplorerModel(chatEntryModel.Chat);
                         break;
-                    
+
                     case AggregateEntryModel aggregateEntryModel:
                         //model.ExplorerModel = new ExplorerModel(aggregateEntryModel.Aggregate);
                         break;
-                    
+
                     case HomeEntryModel _:
                         model.ExplorerModel = ExplorerModel.Hidden();
+                        break;
+                    default:
                         break;
                 }
             });
@@ -71,38 +66,28 @@ namespace Tel.Egram.Model.Messenger
         public static IDisposable BindHome(this MessengerModel model)
         {
             model.HomepageModel = HomepageModel.Hidden();
-            
+
             return model.SubscribeToSelection(entry =>
             {
-                switch (entry)
+                model.HomepageModel = entry switch
                 {
-                    case HomeEntryModel _:
-                        model.HomepageModel = new HomepageModel();
-                        break;
-                    
-                    default:
-                        model.HomepageModel = HomepageModel.Hidden();
-                        break;
-                }
+                    HomeEntryModel _ => new HomepageModel(),
+                    _ => HomepageModel.Hidden()
+                };
             });
         }
 
         public static IDisposable BindEditor(this MessengerModel model)
         {
             model.EditorModel = EditorModel.Hidden();
-            
+
             return model.SubscribeToSelection(entry =>
             {
-                switch (entry)
+                model.EditorModel = entry switch
                 {
-                    case ChatEntryModel chatEntryModel:
-                        model.EditorModel = new EditorModel(chatEntryModel.Chat);
-                        break;
-                    
-                    default:
-                        model.EditorModel = EditorModel.Hidden();
-                        break;
-                }
+                    ChatEntryModel chatEntryModel => new EditorModel(chatEntryModel.Chat),
+                    _ => EditorModel.Hidden()
+                };
             });
         }
 

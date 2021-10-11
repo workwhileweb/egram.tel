@@ -4,6 +4,6 @@ namespace Tel.Egram.Services.Graphics.Previews
 {
     public interface IPreviewCache : IMemoryCache
     {
-        
+
     }
 }

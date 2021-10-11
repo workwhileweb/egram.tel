@@ -2,13 +2,12 @@ using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia;
-using Avalonia.Controls;
 using ReactiveUI;
 using Splat;
-using Tel.Egram.Views.Notifications;
 using Tel.Egram.Model.Notifications;
 using Tel.Egram.Services.Utils.Platforms;
 using Tel.Egram.Services.Utils.Reactive;
+using Tel.Egram.Views.Notifications;
 
 namespace Tel.Egram.Views.Application
 {
@@ -21,7 +20,7 @@ namespace Tel.Egram.Views.Application
                 Locator.Current.GetService<IPlatform>(),
                 Locator.Current.GetService<INotificationController>());
         }
-        
+
         public static IDisposable BindNotifications(
             this MainWindow mainWindow,
             IPlatform platform,
@@ -29,9 +28,8 @@ namespace Tel.Egram.Views.Application
         {
             var trigger = (controller as NotificationController)?.Trigger;
 
-            if (trigger != null)
-            {
-                return trigger
+            return trigger != null
+                ? trigger
                     .SubscribeOn(RxApp.TaskpoolScheduler)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Accept(model =>
@@ -39,37 +37,29 @@ namespace Tel.Egram.Views.Application
                         var screen = mainWindow.Screens.Primary;
                         var window = new NotificationWindow();
                         window.Show();
-                        
+
                         window.DataContext = model;
                         window.Position = new PixelPoint(
                             GetXForNotification(platform, screen.Bounds, window.Bounds),
                             GetYForNotification(platform, screen.Bounds, window.Bounds));
-                    });
-            }
-
-            return Disposable.Empty;
+                    })
+                : Disposable.Empty;
         }
 
         private static int GetXForNotification(IPlatform platform, PixelRect outer, Rect inner)
         {
-            switch (platform)
+            return platform switch
             {
-                //case WindowsPlatform _:
-                //    return outer.Width - inner.Width;
-                default:
-                    return outer.Width - (int)inner.Width;
-            }
+                _ => outer.Width - (int)inner.Width
+            };
         }
 
         private static int GetYForNotification(IPlatform platform, PixelRect outer, Rect inner)
         {
-            switch (platform)
+            return platform switch
             {
-                //case WindowsPlatform _:
-                //    return outer.Height - inner.Height;
-                default:
-                    return 0;
-            }
+                _ => 0
+            };
         }
     }
 }

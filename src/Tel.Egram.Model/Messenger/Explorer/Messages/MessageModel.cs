@@ -9,13 +9,13 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages
         public string AuthorName { get; set; }
 
         public string Time { get; set; }
-        
+
         public Avatar Avatar { get; set; }
-        
+
         public Message Message { get; set; }
-        
+
         public bool HasReply { get; set; }
-        
+
         public ReplyModel Reply { get; set; }
     }
 }

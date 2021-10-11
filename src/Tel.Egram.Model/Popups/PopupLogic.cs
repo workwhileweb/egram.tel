@@ -15,7 +15,7 @@ namespace Tel.Egram.Model.Popups
                 model,
                 Locator.Current.GetService<IPopupController>());
         }
-        
+
         public static IDisposable BindPopup(
             this PopupModel model,
             IPopupController popupController)

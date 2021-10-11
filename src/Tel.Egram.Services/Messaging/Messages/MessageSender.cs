@@ -14,7 +14,7 @@ namespace Tel.Egram.Services.Messaging.Messages
         {
             _agent = agent;
         }
-        
+
         public IObservable<TdApi.Message> SendMessage(
             TdApi.Chat chat,
             TdApi.InputMessageContent.InputMessageText messageTextContent)

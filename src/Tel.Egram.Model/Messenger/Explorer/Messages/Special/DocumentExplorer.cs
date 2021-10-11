@@ -20,11 +20,11 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Special
         }
 
         public DocumentExplorer()
-            : this (
+            : this(
                 Locator.Current.GetService<IFileExplorer>())
         {
         }
-        
+
         public IDisposable Bind(
             DocumentMessageModel model)
         {
@@ -33,7 +33,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Special
 
             return model.ShowCommand.Subscribe();
         }
-        
+
         private bool Explore(
             DocumentMessageModel model)
         {

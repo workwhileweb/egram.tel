@@ -2,10 +2,6 @@ namespace Tel.Egram.Model.Messenger.Catalog.Entries
 {
     public class HomeEntryModel : EntryModel
     {
-        private HomeEntryModel()
-        {
-        }
-
         static HomeEntryModel()
         {
             Instance = new HomeEntryModel
@@ -15,7 +11,11 @@ namespace Tel.Egram.Model.Messenger.Catalog.Entries
                 Title = "Home"
             };
         }
-        
+
+        private HomeEntryModel()
+        {
+        }
+
         public static HomeEntryModel Instance { get; }
     }
 }

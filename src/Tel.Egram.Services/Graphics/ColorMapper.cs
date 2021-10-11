@@ -13,7 +13,7 @@ namespace Tel.Egram.Services.Graphics
             "8ace7c",
             "f5b870"
         };
-        
+
         public ColorMapper()
         {
         }

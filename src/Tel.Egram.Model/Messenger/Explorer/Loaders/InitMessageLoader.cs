@@ -18,7 +18,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
     public class InitMessageLoader
     {
         private readonly MessageLoaderConductor _conductor;
-        
+
         private readonly IChatLoader _chatLoader;
         private readonly IMessageLoader _messageLoader;
         private readonly IMessageModelFactory _messageModelFactory;
@@ -32,7 +32,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
         {
             _conductor = conductor;
         }
-        
+
         public InitMessageLoader(
             IChatLoader chatLoader,
             IMessageLoader messageLoader,
@@ -61,7 +61,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
         {
             //Console.WriteLine("Start init: {0}", Thread.CurrentThread.ManagedThreadId);
             _conductor.IsBusy = true;
-            
+
             return LoadInitMessages(chat)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .SubscribeOn(RxApp.MainThreadScheduler)
@@ -77,7 +77,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
             IList<MessageModel> messageModels)
         {
             //Console.WriteLine("End init");
-            
+
             // find last read message to scroll to it later
             var targetItem = messageModels
                 .FirstOrDefault(m => m.Message.MessageData.Id == chat.ChatData.LastReadInboxMessageId);
@@ -90,7 +90,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
             model.SourceItems.AddRange(messageModels);
             model.TargetItem = targetItem;
         }
-        
+
         private IObservable<IList<MessageModel>> LoadInitMessages(
             Chat chat)
         {

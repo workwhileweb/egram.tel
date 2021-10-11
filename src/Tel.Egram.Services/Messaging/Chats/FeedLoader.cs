@@ -16,7 +16,7 @@ namespace Tel.Egram.Services.Messaging.Chats
         {
             _agent = agent;
         }
-        
+
         public IObservable<Aggregate> LoadAggregate()
         {
             return GetAllChats(new List<TdApi.Chat>())
@@ -36,9 +36,9 @@ namespace Tel.Egram.Services.Messaging.Chats
         public IObservable<Chat> LoadChat(long chatId)
         {
             return _agent.Execute(new TdApi.GetChat
-                {
-                    ChatId = chatId
-                })
+            {
+                ChatId = chatId
+            })
                 .Select(chat => new Chat
                 {
                     ChatData = chat
@@ -50,8 +50,8 @@ namespace Tel.Egram.Services.Messaging.Chats
             long offsetOrder = long.MaxValue,
             long offsetChatId = 0)
         {
-            int limit = 100;
-            
+            var limit = 100;
+
             return GetChats(offsetOrder, offsetChatId, limit)
                 .CollectToList()
                 .SelectMany(list =>
@@ -62,7 +62,7 @@ namespace Tel.Egram.Services.Messaging.Chats
                         chats.AddRange(list);
                         return GetAllChats(chats, lastChat.Order, lastChat.Id);
                     }
-                    
+
                     return chats.ToObservable();
                 });
         }
@@ -70,11 +70,11 @@ namespace Tel.Egram.Services.Messaging.Chats
         private IObservable<TdApi.Chat> GetChats(long offsetOrder, long offsetChatId, int limit)
         {
             return _agent.Execute(new TdApi.GetChats
-                {
-                    OffsetOrder = offsetOrder,
-                    OffsetChatId = offsetChatId,
-                    Limit = limit
-                })
+            {
+                OffsetOrder = offsetOrder,
+                OffsetChatId = offsetChatId,
+                Limit = limit
+            })
                 .SelectMany(result => result.ChatIds)
                 .SelectMany(chatId => _agent.Execute(new TdApi.GetChat
                 {

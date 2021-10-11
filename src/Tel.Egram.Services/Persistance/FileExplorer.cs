@@ -24,7 +24,7 @@ namespace Tel.Egram.Services.Persistance
                 case WindowsPlatform _:
                     Process.Start("explorer.exe", $"\"{directory.FullName}\"");
                     break;
-                
+
                 case MacosPlatform _:
                     Process.Start("open", $"\"{directory.FullName}\"");
                     break;

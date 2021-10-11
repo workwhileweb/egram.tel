@@ -14,19 +14,19 @@ namespace Tel.Egram.Model.Messenger.Catalog
     public class CatalogProvider
     {
         private readonly IChatLoader _chatLoader;
+        private readonly SourceCache<EntryModel, long> _chats;
         private readonly IChatUpdater _chatUpdater;
 
         private readonly Dictionary<long, EntryModel> _entryStore;
-        private readonly SourceCache<EntryModel, long> _chats;
 
         public CatalogProvider(
             IChatLoader chatLoader,
             IChatUpdater chatUpdater
-            )
+        )
         {
             _chatLoader = chatLoader;
             _chatUpdater = chatUpdater;
-            
+
             _entryStore = new Dictionary<long, EntryModel>();
             _chats = new SourceCache<EntryModel, long>(m => m.Id);
         }
@@ -43,13 +43,14 @@ namespace Tel.Egram.Model.Messenger.Catalog
             var entries = model.Entries;
             var filter = model.FilterController;
             var sorting = model.SortingController;
-            
+
             var disposable = new CompositeDisposable();
 
             LoadHome(model, section)
                 .DisposeWith(disposable);
-            
-            _chats.Connect()
+
+            //TODO : home here
+            _ = _chats.Connect()
                 .Filter(filter)
                 .Sort(sorting)
                 .SubscribeOn(RxApp.TaskpoolScheduler)
@@ -57,37 +58,32 @@ namespace Tel.Egram.Model.Messenger.Catalog
                 .Bind(entries)
                 .Accept()
                 .DisposeWith(disposable);
-            
-            BindOrderUpdates()
-                .DisposeWith(disposable);
-            
-            BindEntryUpdates()
-                .DisposeWith(disposable);
-            
-            LoadChats()
-                .DisposeWith(disposable);
+
+            _ = BindOrderUpdates().DisposeWith(disposable);
+
+            _ = BindEntryUpdates().DisposeWith(disposable);
+
+            LoadChats().DisposeWith(disposable);
 
             return disposable;
         }
 
         /// <summary>
-        /// Load home
+        ///     Load home
         /// </summary>
         private IDisposable LoadHome(CatalogModel model, Section section)
         {
-            if (section == Section.Home)
-            {
-                model.Entries.Add(HomeEntryModel.Instance);
-                model.SelectedEntry = HomeEntryModel.Instance;
-            
-                _chats.AddOrUpdate(HomeEntryModel.Instance);
-            }
-            
+            if (section != Section.Home) return Disposable.Empty;
+            model.Entries.Add(HomeEntryModel.Instance);
+            model.SelectedEntry = HomeEntryModel.Instance;
+
+            _chats.AddOrUpdate(HomeEntryModel.Instance);
+
             return Disposable.Empty;
         }
 
         /// <summary>
-        /// Load chats into observable cache
+        ///     Load chats into observable cache
         /// </summary>
         private IDisposable LoadChats()
         {
@@ -102,14 +98,14 @@ namespace Tel.Egram.Model.Messenger.Catalog
                 .Accept(entries =>
                 {
                     entries.Insert(0, HomeEntryModel.Instance);
-                    
+
                     _chats.EditDiff(entries, (m1, m2) => m1.Id == m2.Id);
                     _chats.Refresh();
                 });
         }
 
         /// <summary>
-        /// Subscribe to updates that involve order change
+        ///     Subscribe to updates that involve order change
         /// </summary>
         private IDisposable BindOrderUpdates()
         {
@@ -123,22 +119,19 @@ namespace Tel.Egram.Model.Messenger.Catalog
                     .ToList())
                 .Do(entries =>
                 {
-                    for (int i = 0; i < entries.Count; i++)
-                    {
-                        entries[i].Order = i;
-                    }
+                    for (var i = 0; i < entries.Count; i++) entries[i].Order = i;
                 })
                 .Accept(entries =>
                 {
                     entries.Insert(0, HomeEntryModel.Instance);
-                    
+
                     _chats.EditDiff(entries, (m1, m2) => m1.Id == m2.Id);
                     _chats.Refresh();
                 });
         }
 
         /// <summary>
-        /// Subscribe to updates for individual entries
+        ///     Subscribe to updates for individual entries
         /// </summary>
         private IDisposable BindEntryUpdates()
         {
@@ -146,30 +139,26 @@ namespace Tel.Egram.Model.Messenger.Catalog
                 .Buffer(TimeSpan.FromSeconds(1))
                 .SelectMany(chats => chats)
                 .Select(chat => new
-                    {
-                        Chat = chat,
-                        Entry = GetChatEntryModel(chat)
-                    })
-                .Accept(item =>
                 {
-                    UpdateChatEntryModel((ChatEntryModel)item.Entry, item.Chat);
-                });
+                    Chat = chat,
+                    Entry = GetChatEntryModel(chat)
+                })
+                .Accept(item => { UpdateChatEntryModel((ChatEntryModel)item.Entry, item.Chat); });
         }
 
         private EntryModel GetChatEntryModel(Chat chat)
         {
             var chatData = chat.ChatData;
-            
-            if (!_entryStore.TryGetValue(chatData.Id, out var entry))
+
+            if (_entryStore.TryGetValue(chatData.Id, out var entry)) return entry;
+
+            entry = new ChatEntryModel
             {
-                entry = new ChatEntryModel
-                {
-                    Chat = chat
-                };
-                UpdateChatEntryModel((ChatEntryModel)entry, chat);
-                
-                _entryStore.Add(chatData.Id, entry);
-            }
+                Chat = chat
+            };
+            UpdateChatEntryModel((ChatEntryModel)entry, chat);
+
+            _entryStore.Add(chatData.Id, entry);
 
             return entry;
         }
@@ -177,7 +166,7 @@ namespace Tel.Egram.Model.Messenger.Catalog
         private void UpdateChatEntryModel(ChatEntryModel entry, Chat chat)
         {
             var chatData = chat.ChatData;
-            
+
             entry.Chat = chat;
             entry.Id = chatData.Id;
             entry.Title = chatData.Title;

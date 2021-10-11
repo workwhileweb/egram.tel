@@ -13,7 +13,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
         {
             var text = messagePhoto.Caption.Text;
             var photo = messagePhoto.Photo;
-            
+
             return new PhotoMessageModel
             {
                 PhotoData = photo,
@@ -26,7 +26,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
             TdApi.MessageContent.MessageSticker messageSticker)
         {
             var sticker = messageSticker.Sticker;
-            
+
             return new StickerMessageModel
             {
                 StickerData = sticker
@@ -39,7 +39,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
         {
             var text = messageVideo.Caption.Text;
             var video = messageVideo.Video;
-            
+
             return new VideoMessageModel
             {
                 VideoData = video,

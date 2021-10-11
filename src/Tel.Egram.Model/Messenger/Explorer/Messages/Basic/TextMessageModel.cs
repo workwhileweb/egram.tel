@@ -6,14 +6,14 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Basic
     public class TextMessageModel : MessageModel, ISupportsActivation
     {
         public string Text { get; set; }
-        
+
         public TextMessageModel()
         {
             this.WhenActivated(disposables =>
             {
                 this.BindAvatarLoading()
                     .DisposeWith(disposables);
-                
+
                 if (Reply != null)
                 {
                     Reply.BindPreviewLoading()
@@ -21,7 +21,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Basic
                 }
             });
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

@@ -18,7 +18,7 @@ namespace Tel.Egram.Views.Notifications
                 {
                     window.Close();
                 });
-            
+
             return new CompositeDisposable(
                 timer,
                 Disposable.Create(window.Close));

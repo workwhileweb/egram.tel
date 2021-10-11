@@ -9,12 +9,6 @@ namespace Tel.Egram.Model.Messenger.Editor
     [AddINotifyPropertyChangedInterface]
     public class EditorModel : ISupportsActivation
     {
-        public bool IsVisible { get; set; } = true;
-        
-        public string Text { get; set; }
-        
-        public ReactiveCommand<Unit, Unit> SendCommand { get; set; }
-        
         public EditorModel(Chat chat)
         {
             this.WhenActivated(disposables =>
@@ -27,7 +21,15 @@ namespace Tel.Egram.Model.Messenger.Editor
         private EditorModel()
         {
         }
-        
+
+        public bool IsVisible { get; set; } = true;
+
+        public string Text { get; set; }
+
+        public ReactiveCommand<Unit, Unit> SendCommand { get; set; }
+
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
+
         public static EditorModel Hidden()
         {
             return new EditorModel
@@ -35,7 +37,5 @@ namespace Tel.Egram.Model.Messenger.Editor
                 IsVisible = false
             };
         }
-        
-        public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

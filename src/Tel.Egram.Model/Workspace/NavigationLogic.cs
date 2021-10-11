@@ -15,7 +15,7 @@ namespace Tel.Egram.Model.Workspace
             this WorkspaceModel model)
         {
             model.NavigationModel = new NavigationModel();
-            
+
             return model.NavigationModel.WhenAnyValue(m => m.SelectedTabIndex)
                 .Select(index => (ContentKind)index)
                 .SubscribeOn(RxApp.TaskpoolScheduler)
@@ -27,7 +27,7 @@ namespace Tel.Egram.Model.Workspace
                         case ContentKind.Settings:
                             InitSettings(model);
                             break;
-                        
+
                         default:
                             InitMessenger(model, kind);
                             break;
@@ -37,8 +37,8 @@ namespace Tel.Egram.Model.Workspace
 
         private static void InitMessenger(WorkspaceModel model, ContentKind kind)
         {
-            var section = (Section) kind;
-            
+            var section = (Section)kind;
+
             model.SettingsModel = null;
             model.MessengerModel = new MessengerModel(section);
         }
@@ -46,7 +46,7 @@ namespace Tel.Egram.Model.Workspace
         private static void InitSettings(WorkspaceModel model)
         {
             model.ContentIndex = 1;
-            
+
             model.MessengerModel = null;
             model.SettingsModel = new SettingsModel();
         }

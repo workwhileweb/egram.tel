@@ -8,7 +8,7 @@ namespace Tel.Egram.Services.Persistance
         /// Open directory in explorer, finder, etc.
         /// </summary>
         void OpenDirectory(DirectoryInfo directory);
-        
+
         /// <summary>
         /// Open directory in explorer, finder, etc. cotaining the file
         /// </summary>

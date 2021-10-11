@@ -38,7 +38,7 @@ namespace Tel.Egram.Model.Messenger.Informer
         {
             model.Title = chat.ChatData.Title;
             model.Label = chat.ChatData.Title;
-                    
+
             return avatarLoader.LoadAvatar(chat.ChatData, AvatarSize.Regular)
                 .SubscribeOn(RxApp.TaskpoolScheduler)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -47,7 +47,7 @@ namespace Tel.Egram.Model.Messenger.Informer
                     model.Avatar = avatar;
                 });
         }
-        
+
         public static IDisposable BindInformer(
             this InformerModel model,
             Aggregate aggregate,
@@ -55,7 +55,7 @@ namespace Tel.Egram.Model.Messenger.Informer
         {
             model.Title = aggregate.Id.ToString();
             model.Label = aggregate.Id.ToString();
-            
+
             return Disposable.Empty;
         }
     }

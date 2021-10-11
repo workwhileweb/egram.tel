@@ -7,9 +7,9 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Visual
     public class PhotoMessageModel : VisualMessageModel, ISupportsActivation
     {
         public string Text { get; set; }
-        
+
         public TdApi.Photo PhotoData { get; set; }
-        
+
         public PhotoMessageModel()
         {
             this.WhenActivated(disposables =>
@@ -27,7 +27,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Visual
                 }
             });
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

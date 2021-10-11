@@ -10,13 +10,13 @@ namespace Tel.Egram.Model.Messenger.Informer
     public class InformerModel : ISupportsActivation
     {
         public bool IsVisible { get; set; } = true;
-        
+
         public string Title { get; set; }
-        
+
         public string Label { get; set; }
-        
+
         public Avatar Avatar { get; set; }
-        
+
         public InformerModel(Chat chat)
         {
             this.WhenActivated(disposables =>
@@ -38,7 +38,7 @@ namespace Tel.Egram.Model.Messenger.Informer
         private InformerModel()
         {
         }
-        
+
         public static InformerModel Hidden()
         {
             return new InformerModel
@@ -46,7 +46,7 @@ namespace Tel.Egram.Model.Messenger.Informer
                 IsVisible = false
             };
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

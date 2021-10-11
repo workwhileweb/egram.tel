@@ -10,19 +10,19 @@ namespace Tel.Egram.Model.Messenger.Homepage
     public class HomepageModel : ISupportsActivation
     {
         public bool IsVisible { get; set; } = true;
-        
+
         public string SearchText { get; set; }
-        
+
         public ObservableCollectionExtended<MessageModel> PromotedMessages { get; set; }
-        
+
         public HomepageModel()
         {
-//            this.WhenActivated(disposables =>
-//            {
-//                
-//            });
+            //            this.WhenActivated(disposables =>
+            //            {
+            //                
+            //            });
         }
-        
+
         public ViewModelActivator Activator => new ViewModelActivator();
 
         public static HomepageModel Hidden()

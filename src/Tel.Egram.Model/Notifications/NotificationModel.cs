@@ -9,9 +9,9 @@ namespace Tel.Egram.Model.Notifications
     public class NotificationModel : ISupportsActivation
     {
         public string Title { get; set; }
-        
+
         public string Text { get; set; }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
 
         public static NotificationModel FromNotification(Notification notification)
@@ -19,16 +19,13 @@ namespace Tel.Egram.Model.Notifications
             var chat = notification.Chat;
             var message = notification.Message;
 
-            if (message != null)
-            {
-                return new NotificationModel
+            return message != null
+                ? new NotificationModel
                 {
                     Title = "New message",
                     Text = chat.Title
-                };
-            }
-
-            return new NotificationModel
+                }
+                : new NotificationModel
             {
                 Title = "New chat",
                 Text = chat.Title

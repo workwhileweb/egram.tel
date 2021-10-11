@@ -11,13 +11,12 @@ namespace Tel.Egram.Services.Graphics.Previews
 {
     public class PreviewLoader : IPreviewLoader
     {
-        private readonly IFileLoader _fileLoader;
+        private static readonly string[] LowQualitySizes = { "m", "b", "a", "s" };
+        private static readonly string[] HighQualitySizes = { "x", "c" };
         private readonly IPreviewCache _cache;
-        
-        private readonly object _locker;
+        private readonly IFileLoader _fileLoader;
 
-        private static readonly string[] LowQualitySizes = {"m", "b", "a", "s"};
-        private static readonly string[] HighQualitySizes = {"x", "c"};
+        private readonly object _locker;
 
         public PreviewLoader(
             IFileLoader fileLoader,
@@ -25,7 +24,7 @@ namespace Tel.Egram.Services.Graphics.Previews
         {
             _fileLoader = fileLoader;
             _cache = previewCache;
-            
+
             _locker = new object();
         }
 
@@ -34,12 +33,12 @@ namespace Tel.Egram.Services.Graphics.Previews
             PreviewQuality quality)
         {
             var types = GetTypesByQuality(quality);
-            
+
             var file = photo.Sizes
                 .Where(s => Array.IndexOf(types, s.Type) >= 0)
                 .OrderBy(s => Array.IndexOf(types, s.Type))
                 .FirstOrDefault()?.Photo;
-            
+
             return new Preview
             {
                 Bitmap = GetBitmap(file),
@@ -52,7 +51,7 @@ namespace Tel.Egram.Services.Graphics.Previews
             PreviewQuality quality)
         {
             var types = GetTypesByQuality(quality);
-            
+
             var file = photo.Sizes
                 .Where(s => Array.IndexOf(types, s.Type) >= 0)
                 .OrderBy(s => Array.IndexOf(types, s.Type))
@@ -69,7 +68,7 @@ namespace Tel.Egram.Services.Graphics.Previews
         public Preview GetPreview(TdApi.PhotoSize photoSize)
         {
             var file = photoSize?.Photo;
-            
+
             return new Preview
             {
                 Bitmap = GetBitmap(file),
@@ -80,7 +79,7 @@ namespace Tel.Egram.Services.Graphics.Previews
         public IObservable<Preview> LoadPreview(TdApi.PhotoSize photoSize)
         {
             var file = photoSize?.Photo;
-            
+
             return LoadBitmap(file)
                 .Select(bitmap => new Preview
                 {
@@ -92,7 +91,7 @@ namespace Tel.Egram.Services.Graphics.Previews
         public Preview GetPreview(TdApi.Sticker sticker)
         {
             var file = sticker.Sticker_;
-            
+
             return new Preview
             {
                 Bitmap = GetBitmap(file),
@@ -103,7 +102,7 @@ namespace Tel.Egram.Services.Graphics.Previews
         public IObservable<Preview> LoadPreview(TdApi.Sticker sticker)
         {
             var file = sticker.Sticker_;
-            
+
             return LoadBitmap(file)
                 .Select(bitmap => new Preview
                 {
@@ -114,24 +113,16 @@ namespace Tel.Egram.Services.Graphics.Previews
 
         private IObservable<IBitmap> LoadBitmap(TdApi.File file)
         {
-            if (file != null)
-            {
-                return _fileLoader.LoadFile(file, LoadPriority.Mid)
-                    .FirstAsync(f => f.Local != null && f.Local.IsDownloadingCompleted)
-                    .Select(f => GetBitmap(f.Local.Path));
-            }
-
-            return Observable.Return<Bitmap>(null);
+            return file != null
+                ? _fileLoader.LoadFile(file, LoadPriority.Mid)
+                    .FirstAsync(f => f.Local is {IsDownloadingCompleted: true})
+                    .Select(f => GetBitmap(f.Local.Path))
+                : Observable.Return<Bitmap>(null);
         }
 
         private IBitmap GetBitmap(TdApi.File file)
         {
-            if (file?.Local?.Path != null && _cache.TryGetValue(file.Local.Path, out var bitmap))
-            {
-                return (IBitmap) bitmap;
-            }
-
-            return null;
+            return file?.Local?.Path != null && _cache.TryGetValue(file.Local.Path, out var bitmap) ? (IBitmap)bitmap : null;
         }
 
         private Bitmap GetBitmap(string filePath)
@@ -139,7 +130,7 @@ namespace Tel.Egram.Services.Graphics.Previews
             lock (_locker)
             {
                 Bitmap bitmap = null;
-            
+
                 if (_cache.TryGetValue(filePath, out var item))
                 {
                     bitmap = (Bitmap)item;
@@ -152,7 +143,7 @@ namespace Tel.Egram.Services.Graphics.Previews
                         Size = 1
                     });
                 }
-            
+
                 return bitmap;
             }
         }
@@ -161,14 +152,11 @@ namespace Tel.Egram.Services.Graphics.Previews
         {
             // s m x y w
             // a b c d
-            switch (quality)
+            return quality switch
             {
-                case PreviewQuality.Low:
-                    return LowQualitySizes;
-                
-                default:
-                    return HighQualitySizes;
-            }
+                PreviewQuality.Low => LowQualitySizes,
+                _ => HighQualitySizes
+            };
         }
     }
 }

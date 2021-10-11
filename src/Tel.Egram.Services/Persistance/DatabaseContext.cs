@@ -17,10 +17,10 @@ namespace Tel.Egram.Services.Persistance
             modelBuilder.Entity<KeyValueEntity>(m =>
             {
                 m.ToTable("key_value");
-                
+
                 m.Property(v => v.Key);
                 m.Property(v => v.Value);
-                
+
                 m.HasKey(v => v.Key);
             });
         }

@@ -18,10 +18,10 @@ namespace Tel.Egram.Services.Graphics
         public IObservable<IBitmap> LoadFile(TdApi.File file, LoadPriority priority)
         {
             return _fileLoader.LoadFile(file, priority)
-                .FirstAsync(f => f.Local != null && f.Local.IsDownloadingCompleted)
+                .FirstAsync(f => f.Local is {IsDownloadingCompleted: true})
                 .Select(f => new Bitmap(f.Local.Path));
         }
-        
+
         public void Dispose()
         {
         }

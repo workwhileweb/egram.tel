@@ -45,7 +45,7 @@ namespace Tel.Egram.Services.Messaging.Chats
                 .SelectMany(u => GetChat(u.ChatId));
             var messageUpdates = _agent.Updates.OfType<TdApi.Update.UpdateChatLastMessage>()
                 .SelectMany(u => GetChat(u.ChatId));
-                
+
             return titleUpdates
                 .Merge(photoUpdates)
                 .Merge(inboxUpdates)
@@ -55,22 +55,19 @@ namespace Tel.Egram.Services.Messaging.Chats
         private IObservable<Chat> GetChat(long chatId)
         {
             return _agent.Execute(new TdApi.GetChat
-                {
-                    ChatId = chatId
-                })
+            {
+                ChatId = chatId
+            })
                 .SelectMany(chat =>
                 {
-                    if (chat.Type is TdApi.ChatType.ChatTypePrivate type)
-                    {
-                        return GetUser(type.UserId)
+                    return chat.Type is TdApi.ChatType.ChatTypePrivate type
+                        ? GetUser(type.UserId)
                             .Select(user => new Chat
                             {
                                 ChatData = chat,
                                 User = user
-                            });
-                    }
-                    
-                    return Observable.Return(new Chat
+                            })
+                        : Observable.Return(new Chat
                     {
                         ChatData = chat
                     });

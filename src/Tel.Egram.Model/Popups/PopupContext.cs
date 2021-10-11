@@ -8,7 +8,7 @@ namespace Tel.Egram.Model.Popups
     public class PopupContext
     {
         public string Title { get; set; }
-        
+
         public ReactiveCommand<Unit, Unit> CloseCommand { get; }
 
         public PopupContext()

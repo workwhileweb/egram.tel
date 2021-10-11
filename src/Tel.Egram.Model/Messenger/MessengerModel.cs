@@ -12,15 +12,15 @@ namespace Tel.Egram.Model.Messenger
 {
     [AddINotifyPropertyChangedInterface]
     public class MessengerModel : ISupportsActivation
-    {   
+    {
         public CatalogModel CatalogModel { get; set; }
-        
+
         public InformerModel InformerModel { get; set; }
-        
+
         public ExplorerModel ExplorerModel { get; set; }
-        
+
         public HomepageModel HomepageModel { get; set; }
-        
+
         public EditorModel EditorModel { get; set; }
 
         public MessengerModel(Section section)
@@ -46,7 +46,7 @@ namespace Tel.Egram.Model.Messenger
                     .DisposeWith(disposables);
             });
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

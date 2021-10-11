@@ -15,10 +15,10 @@ namespace Tel.Egram.Services.Messaging.Messages
 
         private readonly ConcurrentDictionary<int, TdApi.User> _users
             = new ConcurrentDictionary<int, TdApi.User>();
-        
+
         private readonly ConcurrentDictionary<long, TdApi.Chat> _chats
             = new ConcurrentDictionary<long, TdApi.Chat>();
-        
+
         private readonly ConcurrentDictionary<(long, long), TdApi.Message> _messages
             = new ConcurrentDictionary<(long, long), TdApi.Message>();
 
@@ -29,15 +29,12 @@ namespace Tel.Egram.Services.Messaging.Messages
 
         public IObservable<TdApi.User> GetUser(int userId)
         {
-            if (_users.TryGetValue(userId, out var user))
+            return _users.TryGetValue(userId, out var user)
+                ? Observable.Return(user)
+                : _agent.Execute(new TdApi.GetUser
             {
-                return Observable.Return(user);
-            }
-
-            return _agent.Execute(new TdApi.GetUser
-                {
-                    UserId = userId
-                })
+                UserId = userId
+            })
                 .Do(u =>
                 {
                     _users.GetOrAdd(userId, u);
@@ -46,15 +43,12 @@ namespace Tel.Egram.Services.Messaging.Messages
 
         public IObservable<TdApi.Chat> GetChat(long chatId)
         {
-            if (_chats.TryGetValue(chatId, out var chat))
+            return _chats.TryGetValue(chatId, out var chat)
+                ? Observable.Return(chat)
+                : _agent.Execute(new TdApi.GetChat
             {
-                return Observable.Return(chat);
-            }
-
-            return _agent.Execute(new TdApi.GetChat
-                {
-                    ChatId = chatId
-                })
+                ChatId = chatId
+            })
                 .Do(c =>
                 {
                     _chats.GetOrAdd(chatId, c);
@@ -63,16 +57,13 @@ namespace Tel.Egram.Services.Messaging.Messages
 
         public IObservable<TdApi.Message> GetMessage(long chatId, long messageId)
         {
-            if (_messages.TryGetValue((chatId, messageId), out var message))
+            return _messages.TryGetValue((chatId, messageId), out var message)
+                ? Observable.Return(message)
+                : _agent.Execute(new TdApi.GetMessage
             {
-                return Observable.Return(message);
-            }
-
-            return _agent.Execute(new TdApi.GetMessage
-                {
-                    ChatId = chatId,
-                    MessageId = messageId
-                })
+                ChatId = chatId,
+                MessageId = messageId
+            })
                 .Do(m =>
                 {
                     _messages.GetOrAdd((chatId, messageId), m);

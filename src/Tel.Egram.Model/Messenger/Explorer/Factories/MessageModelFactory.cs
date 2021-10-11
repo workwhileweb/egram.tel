@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using TdLib;
 using Tel.Egram.Model.Messenger.Explorer.Messages;
@@ -12,9 +11,9 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
         private readonly IBasicMessageModelFactory _basicMessageModelFactory;
         private readonly INoteMessageModelFactory _noteMessageModelFactory;
         private readonly ISpecialMessageModelFactory _specialMessageModelFactory;
-        private readonly IVisualMessageModelFactory _visualMessageModelFactory;
-        
+
         private readonly IStringFormatter _stringFormatter;
+        private readonly IVisualMessageModelFactory _visualMessageModelFactory;
 
         public MessageModelFactory(
             IBasicMessageModelFactory basicMessageModelFactory,
@@ -27,10 +26,10 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
             _noteMessageModelFactory = noteMessageModelFactory;
             _specialMessageModelFactory = specialMessageModelFactory;
             _visualMessageModelFactory = visualMessageModelFactory;
-            
+
             _stringFormatter = stringFormatter;
         }
-        
+
         public MessageModel CreateMessage(Message message)
         {
             var model = GetMessage(message);
@@ -43,126 +42,87 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
             var messageData = message.MessageData;
             var content = messageData.Content;
 
-            switch (content)
+            return content switch
             {
                 // basic
-                case TdApi.MessageContent.MessageText messageText:
-                    return _basicMessageModelFactory.CreateTextMessage(message, messageText);
-                
+                TdApi.MessageContent.MessageText messageText => _basicMessageModelFactory.CreateTextMessage(message,
+                    messageText),
                 // visual
-                case TdApi.MessageContent.MessagePhoto messagePhoto:
-                    return _visualMessageModelFactory.CreatePhotoMessage(message, messagePhoto);
-                
-                case TdApi.MessageContent.MessageExpiredPhoto expiredPhoto:
-                    return _visualMessageModelFactory.CreateExpiredPhotoMessage(message, expiredPhoto);
-                
-                case TdApi.MessageContent.MessageSticker messageSticker:
-                    return _visualMessageModelFactory.CreateStickerMessage(message, messageSticker);
-                
-                case TdApi.MessageContent.MessageAnimation messageAnimation:
-                    return _visualMessageModelFactory.CreateAnimationMessage(message, messageAnimation);
-                
-                case TdApi.MessageContent.MessageVideo messageVideo:
-                    return _visualMessageModelFactory.CreateVideoMessage(message, messageVideo);
-                
-                case TdApi.MessageContent.MessageExpiredVideo expiredVideo:
-                    return _visualMessageModelFactory.CreateExpiredVideoMessage(message, expiredVideo);
-                
-                case TdApi.MessageContent.MessageVideoNote videoNote:
-                    return _visualMessageModelFactory.CreateVideoNoteMessage(message, videoNote);
-                
+                TdApi.MessageContent.MessagePhoto messagePhoto => _visualMessageModelFactory.CreatePhotoMessage(message,
+                    messagePhoto),
+                TdApi.MessageContent.MessageExpiredPhoto expiredPhoto => _visualMessageModelFactory
+                    .CreateExpiredPhotoMessage(message, expiredPhoto),
+                TdApi.MessageContent.MessageSticker messageSticker => _visualMessageModelFactory.CreateStickerMessage(
+                    message, messageSticker),
+                TdApi.MessageContent.MessageAnimation messageAnimation => _visualMessageModelFactory
+                    .CreateAnimationMessage(message, messageAnimation),
+                TdApi.MessageContent.MessageVideo messageVideo => _visualMessageModelFactory.CreateVideoMessage(message,
+                    messageVideo),
+                TdApi.MessageContent.MessageExpiredVideo expiredVideo => _visualMessageModelFactory
+                    .CreateExpiredVideoMessage(message, expiredVideo),
+                TdApi.MessageContent.MessageVideoNote videoNote => _visualMessageModelFactory.CreateVideoNoteMessage(
+                    message, videoNote),
                 // special
-                case TdApi.MessageContent.MessageDocument messageDocument:
-                    return _specialMessageModelFactory.CreateDocumentMessage(message, messageDocument);
-                
-                case TdApi.MessageContent.MessageAudio messageAudio:
-                    return _specialMessageModelFactory.CreateAudioMessage(message, messageAudio);
-                
-                case TdApi.MessageContent.MessageVoiceNote voiceNote:
-                    return _specialMessageModelFactory.CreateVoiceNoteMessage(message, voiceNote);
-                
-                case TdApi.MessageContent.MessagePaymentSuccessful paymentSuccessful:
-                    return _specialMessageModelFactory.CreatePaymentSuccessfulMessage(message, paymentSuccessful);
-                
-                case TdApi.MessageContent.MessagePaymentSuccessfulBot paymentSuccessfulBot:
-                    return _specialMessageModelFactory.CreatePaymentSuccessfulBotMessage(message, paymentSuccessfulBot);
-                
-                case TdApi.MessageContent.MessageLocation location:
-                    return _specialMessageModelFactory.CreateLocationMessage(message, location);
-                
-                case TdApi.MessageContent.MessageVenue venue:
-                    return _specialMessageModelFactory.CreateVenueMessage(message, venue);
-                
-                case TdApi.MessageContent.MessageContact contact:
-                    return _specialMessageModelFactory.CreateContactMessage(message, contact);
-                
-                case TdApi.MessageContent.MessageGame game:
-                    return _specialMessageModelFactory.CreateGameMessage(message, game);
-                
-                case TdApi.MessageContent.MessageGameScore gameScore:
-                    return _specialMessageModelFactory.CreateGameScoreMessage(message, gameScore);
-                
-                case TdApi.MessageContent.MessageInvoice invoice:
-                    return _specialMessageModelFactory.CreateInvoiceMessage(message, invoice);
-                
-                case TdApi.MessageContent.MessagePassportDataSent passportDataSent:
-                    return _specialMessageModelFactory.CreatePassportDataSentMessage(message, passportDataSent);
-                
-                case TdApi.MessageContent.MessagePassportDataReceived passportDataReceived:
-                    return _specialMessageModelFactory.CreatePassportDataReceivedMessage(message, passportDataReceived);
-                
-                case TdApi.MessageContent.MessageContactRegistered contactRegistered:
-                    return _specialMessageModelFactory.CreateContactRegisteredMessage(message, contactRegistered);
-                
-                case TdApi.MessageContent.MessageWebsiteConnected websiteConnected:
-                    return _specialMessageModelFactory.CreateWebsiteConnectedMessage(message, websiteConnected);
-                
+                TdApi.MessageContent.MessageDocument messageDocument => _specialMessageModelFactory
+                    .CreateDocumentMessage(message, messageDocument),
+                TdApi.MessageContent.MessageAudio messageAudio => _specialMessageModelFactory.CreateAudioMessage(
+                    message, messageAudio),
+                TdApi.MessageContent.MessageVoiceNote voiceNote => _specialMessageModelFactory.CreateVoiceNoteMessage(
+                    message, voiceNote),
+                TdApi.MessageContent.MessagePaymentSuccessful paymentSuccessful => _specialMessageModelFactory
+                    .CreatePaymentSuccessfulMessage(message, paymentSuccessful),
+                TdApi.MessageContent.MessagePaymentSuccessfulBot paymentSuccessfulBot => _specialMessageModelFactory
+                    .CreatePaymentSuccessfulBotMessage(message, paymentSuccessfulBot),
+                TdApi.MessageContent.MessageLocation location => _specialMessageModelFactory.CreateLocationMessage(
+                    message, location),
+                TdApi.MessageContent.MessageVenue venue => _specialMessageModelFactory.CreateVenueMessage(message,
+                    venue),
+                TdApi.MessageContent.MessageContact contact => _specialMessageModelFactory.CreateContactMessage(message,
+                    contact),
+                TdApi.MessageContent.MessageGame game => _specialMessageModelFactory.CreateGameMessage(message, game),
+                TdApi.MessageContent.MessageGameScore gameScore => _specialMessageModelFactory.CreateGameScoreMessage(
+                    message, gameScore),
+                TdApi.MessageContent.MessageInvoice invoice => _specialMessageModelFactory.CreateInvoiceMessage(message,
+                    invoice),
+                TdApi.MessageContent.MessagePassportDataSent passportDataSent => _specialMessageModelFactory
+                    .CreatePassportDataSentMessage(message, passportDataSent),
+                TdApi.MessageContent.MessagePassportDataReceived passportDataReceived => _specialMessageModelFactory
+                    .CreatePassportDataReceivedMessage(message, passportDataReceived),
+                TdApi.MessageContent.MessageContactRegistered contactRegistered => _specialMessageModelFactory
+                    .CreateContactRegisteredMessage(message, contactRegistered),
+                TdApi.MessageContent.MessageWebsiteConnected websiteConnected => _specialMessageModelFactory
+                    .CreateWebsiteConnectedMessage(message, websiteConnected),
                 // notes
-                case TdApi.MessageContent.MessageCall messageCall:
-                    return _noteMessageModelFactory.CreateCallMessage(message, messageCall);
-                
-                case TdApi.MessageContent.MessageBasicGroupChatCreate basicGroupChatCreate:
-                    return _noteMessageModelFactory.CreateBasicGroupChatCreateMessage(message, basicGroupChatCreate);
-                
-                case TdApi.MessageContent.MessageChatChangeTitle chatChangeTitle:
-                    return _noteMessageModelFactory.CreateChatChangeTitleMessage(message, chatChangeTitle);
-                
-                case TdApi.MessageContent.MessageChatChangePhoto chatChangePhoto:
-                    return _noteMessageModelFactory.CreateChatChangePhotoMessage(message, chatChangePhoto);
-                
-                case TdApi.MessageContent.MessageChatDeletePhoto chatDeletePhoto:
-                    return _noteMessageModelFactory.CreateChatDeletePhotoMessage(message, chatDeletePhoto);
-                
-                case TdApi.MessageContent.MessageChatAddMembers chatAddMembers:
-                    return _noteMessageModelFactory.CreateChatAddMembersMessage(message, chatAddMembers);
-                
-                case TdApi.MessageContent.MessageChatJoinByLink chatJoinByLink:
-                    return _noteMessageModelFactory.CreateChatJoinByLinkMessage(message, chatJoinByLink);
-                
-                case TdApi.MessageContent.MessageChatDeleteMember chatDeleteMember:
-                    return _noteMessageModelFactory.CreateChatDeleteMemberMessage(message, chatDeleteMember);
-                
-                case TdApi.MessageContent.MessageChatUpgradeTo chatUpgradeTo:
-                    return _noteMessageModelFactory.CreateChatUpgradeToMessage(message, chatUpgradeTo);
-                
-                case TdApi.MessageContent.MessageChatUpgradeFrom chatUpgradeFrom:
-                    return _noteMessageModelFactory.CreateChatUpgradeFromMessage(message, chatUpgradeFrom);
-                
-                case TdApi.MessageContent.MessagePinMessage pinMessage:
-                    return _noteMessageModelFactory.CreatePinMessageMessage(message, pinMessage);
-                
-                case TdApi.MessageContent.MessageScreenshotTaken screenshotTaken:
-                    return _noteMessageModelFactory.CreateScreenshotTakenMessage(message, screenshotTaken);
-                
-                case TdApi.MessageContent.MessageChatSetTtl chatSetTtl:
-                    return _noteMessageModelFactory.CreateChatSetTtlMessage(message, chatSetTtl);
-                
-                case TdApi.MessageContent.MessageCustomServiceAction customServiceAction:
-                    return _noteMessageModelFactory.CreateCustomServiceActionMessage(message, customServiceAction);
-                
-                default:
-                    return _basicMessageModelFactory.CreateUnsupportedMessage(message);
-            }
+                TdApi.MessageContent.MessageCall messageCall => _noteMessageModelFactory.CreateCallMessage(message,
+                    messageCall),
+                TdApi.MessageContent.MessageBasicGroupChatCreate basicGroupChatCreate => _noteMessageModelFactory
+                    .CreateBasicGroupChatCreateMessage(message, basicGroupChatCreate),
+                TdApi.MessageContent.MessageChatChangeTitle chatChangeTitle => _noteMessageModelFactory
+                    .CreateChatChangeTitleMessage(message, chatChangeTitle),
+                TdApi.MessageContent.MessageChatChangePhoto chatChangePhoto => _noteMessageModelFactory
+                    .CreateChatChangePhotoMessage(message, chatChangePhoto),
+                TdApi.MessageContent.MessageChatDeletePhoto chatDeletePhoto => _noteMessageModelFactory
+                    .CreateChatDeletePhotoMessage(message, chatDeletePhoto),
+                TdApi.MessageContent.MessageChatAddMembers chatAddMembers => _noteMessageModelFactory
+                    .CreateChatAddMembersMessage(message, chatAddMembers),
+                TdApi.MessageContent.MessageChatJoinByLink chatJoinByLink => _noteMessageModelFactory
+                    .CreateChatJoinByLinkMessage(message, chatJoinByLink),
+                TdApi.MessageContent.MessageChatDeleteMember chatDeleteMember => _noteMessageModelFactory
+                    .CreateChatDeleteMemberMessage(message, chatDeleteMember),
+                TdApi.MessageContent.MessageChatUpgradeTo chatUpgradeTo => _noteMessageModelFactory
+                    .CreateChatUpgradeToMessage(message, chatUpgradeTo),
+                TdApi.MessageContent.MessageChatUpgradeFrom chatUpgradeFrom => _noteMessageModelFactory
+                    .CreateChatUpgradeFromMessage(message, chatUpgradeFrom),
+                TdApi.MessageContent.MessagePinMessage pinMessage => _noteMessageModelFactory.CreatePinMessageMessage(
+                    message, pinMessage),
+                TdApi.MessageContent.MessageScreenshotTaken screenshotTaken => _noteMessageModelFactory
+                    .CreateScreenshotTakenMessage(message, screenshotTaken),
+                TdApi.MessageContent.MessageChatSetTtl chatSetTtl => _noteMessageModelFactory.CreateChatSetTtlMessage(
+                    message, chatSetTtl),
+                TdApi.MessageContent.MessageCustomServiceAction customServiceAction => _noteMessageModelFactory
+                    .CreateCustomServiceActionMessage(message, customServiceAction),
+                _ => _basicMessageModelFactory.CreateUnsupportedMessage(message)
+            };
         }
 
         private void ApplyMessageAttributes(MessageModel model, Message message)
@@ -170,34 +130,33 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
             var user = message.UserData;
             var chat = message.ChatData;
 
-            var authorName = (user == null)
+            var authorName = user == null
                 ? chat.Title
                 : $"{user.FirstName} {user.LastName}";
-                
+
             model.Message = message;
             model.AuthorName = authorName;
             model.Time = _stringFormatter.FormatShortTime(message.MessageData.Date);
 
-            if (message.ReplyMessage != null)
+            if (message.ReplyMessage == null) return;
+            model.HasReply = true;
+            model.Reply = new ReplyModel
             {
-                model.HasReply = true;
-                model.Reply = new ReplyModel();
-                
-                model.Reply.Message = message.ReplyMessage;
-                model.Reply.AuthorName = GetReplyAuthorName(message.ReplyMessage);
-                model.Reply.Text = GetReplyText(message.ReplyMessage);
-                model.Reply.PhotoData = GetReplyPhoto(message.ReplyMessage);
-                model.Reply.VideoData = GetReplyVideo(message.ReplyMessage);
-                model.Reply.StickerData = GetReplySticker(message.ReplyMessage);
-            }
+                Message = message.ReplyMessage,
+                AuthorName = GetReplyAuthorName(message.ReplyMessage),
+                Text = GetReplyText(message.ReplyMessage),
+                PhotoData = GetReplyPhoto(message.ReplyMessage),
+                VideoData = GetReplyVideo(message.ReplyMessage),
+                StickerData = GetReplySticker(message.ReplyMessage)
+            };
         }
 
         private string GetReplyAuthorName(Message message)
         {
             var replyUser = message.UserData;
             var replyChat = message.ChatData;
-            
-            var replyAuthorName = (replyUser == null)
+
+            var replyAuthorName = replyUser == null
                 ? replyChat.Title
                 : $"{replyUser.FirstName} {replyUser.LastName}";
 
@@ -209,22 +168,16 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
             var messageData = message.MessageData;
             var content = messageData.Content;
 
-            string text = null;
-            switch (content)
+            var text = content switch
             {
-                case TdApi.MessageContent.MessageText messageText:
-                    text = messageText.Text?.Text;
-                    break;
-                
-                case TdApi.MessageContent.MessagePhoto messagePhoto:
-                    text = messagePhoto.Caption?.Text;
-                    break;
-            }
+                TdApi.MessageContent.MessageText messageText => messageText.Text?.Text,
+                TdApi.MessageContent.MessagePhoto messagePhoto => messagePhoto.Caption?.Text,
+                _ => null
+            };
 
-            if (text == null)
-                return text;
-            
-            return new string(
+            return text == null
+                ? text
+                : new string(
                 text.Take(64)
                     .TakeWhile(c => c != '\n' && c != '\r')
                     .ToArray());
@@ -232,32 +185,17 @@ namespace Tel.Egram.Model.Messenger.Explorer.Factories
 
         private TdApi.Photo GetReplyPhoto(Message message)
         {
-            if (message.MessageData.Content is TdApi.MessageContent.MessagePhoto messagePhoto)
-            {
-                return messagePhoto.Photo;
-            }
-
-            return null;
+            return message.MessageData.Content is TdApi.MessageContent.MessagePhoto messagePhoto ? messagePhoto.Photo : null;
         }
 
         private TdApi.Video GetReplyVideo(Message message)
         {
-            if (message.MessageData.Content is TdApi.MessageContent.MessageVideo messageVideo)
-            {
-                return messageVideo.Video;
-            }
-
-            return null;
+            return message.MessageData.Content is TdApi.MessageContent.MessageVideo messageVideo ? messageVideo.Video : null;
         }
 
         private TdApi.Sticker GetReplySticker(Message message)
         {
-            if (message.MessageData.Content is TdApi.MessageContent.MessageSticker messageSticker)
-            {
-                return messageSticker.Sticker;
-            }
-
-            return null;
+            return message.MessageData.Content is TdApi.MessageContent.MessageSticker messageSticker ? messageSticker.Sticker : null;
         }
     }
 }

@@ -16,22 +16,12 @@ namespace Tel.Egram.Services.Messaging.Messages
 
         public int CountStackedMessages(long chatId)
         {
-            if (_stackedMessages.TryGetValue(chatId, out var stack))
-            {
-                return stack.Count;
-            }
-
-            return 0;
+            return _stackedMessages.TryGetValue(chatId, out var stack) ? stack.Count : 0;
         }
 
         public TdApi.Message PopMessageFromStack(long chatId)
         {
-            if (_stackedMessages.TryGetValue(chatId, out var stack))
-            {
-                return stack.Pop();
-            }
-
-            return null;
+            return _stackedMessages.TryGetValue(chatId, out var stack) ? stack.Pop() : null;
         }
 
         public void PushMessageToStack(long chatId, TdApi.Message message)
@@ -41,7 +31,7 @@ namespace Tel.Egram.Services.Messaging.Messages
                 stack = new Stack<TdApi.Message>();
                 _stackedMessages.Add(chatId, stack);
             }
-            
+
             stack.Push(message);
         }
 

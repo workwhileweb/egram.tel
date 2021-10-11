@@ -7,7 +7,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Visual
     public class StickerMessageModel : VisualMessageModel, ISupportsActivation
     {
         public TdApi.Sticker StickerData { get; set; }
-        
+
         public StickerMessageModel()
         {
             this.WhenActivated(disposables =>
@@ -17,7 +17,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Visual
 
                 this.BindPreviewLoading()
                     .DisposeWith(disposables);
-                
+
                 if (Reply != null)
                 {
                     Reply.BindPreviewLoading()
@@ -25,7 +25,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Messages.Visual
                 }
             });
         }
-        
+
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }
