@@ -27,7 +27,11 @@ namespace Tel.Egram.Model.Workspace
                         case ContentKind.Settings:
                             InitSettings(model);
                             break;
-
+                        case ContentKind.Home:
+                        case ContentKind.Directs:
+                        case ContentKind.Groups:
+                        case ContentKind.Channels:
+                        case ContentKind.Bots:
                         default:
                             InitMessenger(model, kind);
                             break;

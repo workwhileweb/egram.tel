@@ -59,7 +59,6 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
         private IObservable<IList<MessageModel>> StartLoading(
             Chat chat)
         {
-            //Console.WriteLine("Start init: {0}", Thread.CurrentThread.ManagedThreadId);
             _conductor.IsBusy = true;
 
             return LoadInitMessages(chat)
@@ -76,8 +75,6 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
             Chat chat,
             IList<MessageModel> messageModels)
         {
-            //Console.WriteLine("End init");
-
             // find last read message to scroll to it later
             var targetItem = messageModels
                 .FirstOrDefault(m => m.Message.MessageData.Id == chat.ChatData.LastReadInboxMessageId);
@@ -91,8 +88,7 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
             model.TargetItem = targetItem;
         }
 
-        private IObservable<IList<MessageModel>> LoadInitMessages(
-            Chat chat)
+        private IObservable<IList<MessageModel>> LoadInitMessages(Chat chat)
         {
             return _chatLoader.LoadChat(chat.ChatData.Id)
                 .SelectSeq(c => GetInitMessages(c)

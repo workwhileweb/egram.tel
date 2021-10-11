@@ -63,7 +63,6 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
             ExplorerModel model,
             Chat chat)
         {
-            //Console.WriteLine("Start next: {0}", Thread.CurrentThread.ManagedThreadId);
             _conductor.IsBusy = true;
 
             var fromMessage = model.SourceItems.Items
@@ -80,11 +79,8 @@ namespace Tel.Egram.Model.Messenger.Explorer.Loaders
                 }); ;
         }
 
-        private void HandleLoading(
-            ExplorerModel model,
-            IList<MessageModel> messageModels)
+        private static void HandleLoading(ExplorerModel model, IEnumerable<MessageModel> messageModels)
         {
-            //Console.WriteLine("End next");
             model.SourceItems.AddRange(messageModels);
         }
 

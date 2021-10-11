@@ -129,18 +129,17 @@ namespace Tel.Egram.Services.Messaging.Chats
                     var lastChat = list.Last();
                     chats.AddRange(list);
                     return GetAllChats(chats, lastChat.Order, lastChat.Id);
-
                 });
         }
 
-        private IObservable<TdApi.Chat> GetChats(long offsetOrder, long offsetChatId, int limit)
+        public IObservable<TdApi.Chat> GetChats(long offsetOrder, long offsetChatId, int limit)
         {
             return _agent.Execute(new TdApi.GetChats
-            {
-                OffsetOrder = offsetOrder,
-                OffsetChatId = offsetChatId,
-                Limit = limit
-            })
+                {
+                    OffsetOrder = offsetOrder,
+                    OffsetChatId = offsetChatId,
+                    Limit = limit
+                })
                 .SelectMany(result => result.ChatIds)
                 .SelectSeq(chatId => _agent.Execute(new TdApi.GetChat
                 {

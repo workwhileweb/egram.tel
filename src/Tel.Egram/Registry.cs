@@ -200,14 +200,12 @@ namespace Tel.Egram
                 return new NotificationSource(agent);
             });
 
-            // users
             services.RegisterLazySingleton<IUserLoader>(() =>
             {
                 var agent = services.GetService<IAgent>();
                 return new UserLoader(agent);
             });
 
-            // auth
             services.RegisterLazySingleton<IAuthenticator>(() =>
             {
                 var agent = services.GetService<IAgent>();
@@ -215,7 +213,6 @@ namespace Tel.Egram
                 return new Authenticator(agent, storage);
             });
 
-            // settings
             services.RegisterLazySingleton<IProxyManager>(() =>
             {
                 var agent = services.GetService<IAgent>();
@@ -255,7 +252,7 @@ namespace Tel.Egram
                     });
                 };
 
-                application.Disposing += (sender, args) =>
+                application.Disposing += (_, _) =>
                 {
                     var hub = services.GetService<Hub>();
                     hub.Stop();
@@ -267,21 +264,13 @@ namespace Tel.Egram
 
         public static void AddAuthentication(this IMutableDependencyResolver services)
         {
-            //
         }
 
         public static void AddMessenger(this IMutableDependencyResolver services)
         {
-            // messenger
-            services.RegisterLazySingleton<IBasicMessageModelFactory>(() =>
-            {
-                return new BasicMessageModelFactory();
-            });
+            services.RegisterLazySingleton<IBasicMessageModelFactory>(() => new BasicMessageModelFactory());
 
-            services.RegisterLazySingleton<INoteMessageModelFactory>(() =>
-            {
-                return new NoteMessageModelFactory();
-            });
+            services.RegisterLazySingleton<INoteMessageModelFactory>(() => new NoteMessageModelFactory());
 
             services.RegisterLazySingleton<ISpecialMessageModelFactory>(() =>
             {
@@ -289,10 +278,7 @@ namespace Tel.Egram
                 return new SpecialMessageModelFactory(stringFormatter);
             });
 
-            services.RegisterLazySingleton<IVisualMessageModelFactory>(() =>
-            {
-                return new VisualMessageModelFactory();
-            });
+            services.RegisterLazySingleton<IVisualMessageModelFactory>(() => new VisualMessageModelFactory());
 
             services.RegisterLazySingleton<IMessageModelFactory>(() =>
             {

@@ -73,7 +73,7 @@ namespace Tel.Egram.Model.Application
 
         private static void GoToStartupPage(MainWindowModel model)
         {
-            if (model.StartupModel == null) model.StartupModel = new StartupModel();
+            model.StartupModel ??= new StartupModel();
 
             model.WorkspaceModel = null;
             model.AuthenticationModel = null;
@@ -83,7 +83,7 @@ namespace Tel.Egram.Model.Application
 
         private static void GoToAuthenticationPage(MainWindowModel model)
         {
-            if (model.AuthenticationModel == null) model.AuthenticationModel = new AuthenticationModel();
+            model.AuthenticationModel ??= new AuthenticationModel();
 
             model.PageIndex = (int)Page.Authentication;
 
@@ -93,7 +93,7 @@ namespace Tel.Egram.Model.Application
 
         private static void GoToWorkspacePage(MainWindowModel model)
         {
-            if (model.WorkspaceModel == null) model.WorkspaceModel = new WorkspaceModel();
+            model.WorkspaceModel ??= new WorkspaceModel();
 
             model.PageIndex = (int)Page.Workspace;
 

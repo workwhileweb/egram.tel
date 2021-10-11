@@ -1,10 +1,14 @@
+using System;
 using System.Reactive.Disposables;
 using PropertyChanged;
 using ReactiveUI;
+using Splat;
 using Tel.Egram.Model.Application.Startup;
 using Tel.Egram.Model.Authentication;
 using Tel.Egram.Model.Popups;
 using Tel.Egram.Model.Workspace;
+using Tel.Egram.Services.Messaging.Chats;
+using Tel.Egram.Services.Utils.Reactive;
 
 namespace Tel.Egram.Model.Application
 {
@@ -35,9 +39,7 @@ namespace Tel.Egram.Model.Application
         public PopupModel PopupModel { get; set; }
 
         public int PageIndex { get; set; }
-
-        public string WindowTitle { get; set; }
-
+        
         public string ConnectionState { get; set; }
 
         public ViewModelActivator Activator { get; } = new ViewModelActivator();

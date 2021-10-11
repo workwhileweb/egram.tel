@@ -20,11 +20,7 @@ namespace Tel.Egram.Services.Messaging.Chats
         public IObservable<Aggregate> LoadAggregate()
         {
             return GetAllChats(new List<TdApi.Chat>())
-                .Where(chat =>
-                {
-                    var type = chat.Type as TdApi.ChatType.ChatTypeSupergroup;
-                    return !(type is null) && type.IsChannel;
-                })
+                .Where(chat => chat.Type is TdApi.ChatType.ChatTypeSupergroup {IsChannel: true})
                 .Select(chat => new Chat
                 {
                     ChatData = chat

@@ -38,7 +38,7 @@ namespace Tel.Egram.Services.Utils.TdLib
             where T : TdApi.Object
         {
             var delay = Task.Delay(timeout)
-                .ContinueWith<T>(_ => throw new TaskCanceledException("Execution timeout"));
+                .ContinueWith<T>(_ => throw new TaskCanceledException(nameof(timeout)));
 
             var task = Task.WhenAny(delay, _dialer.ExecuteAsync(function))
                 .ContinueWith(t => t.Result.Result);
@@ -50,10 +50,10 @@ namespace Tel.Egram.Services.Utils.TdLib
             where T : TdApi.Object
         {
             var delay = Task.Delay(Timeout.Infinite, cancellationToken)
-                .ContinueWith<T>(_ => throw new TaskCanceledException("Execution timeout"));
+                .ContinueWith<T>(_ => throw new TaskCanceledException("Execution timeout"), cancellationToken);
 
             var task = Task.WhenAny(delay, _dialer.ExecuteAsync(function))
-                .ContinueWith(t => t.Result.Result);
+                .ContinueWith(t => t.Result.Result, cancellationToken);
 
             return task.ToObservable();
         }
